@@ -13,3 +13,7 @@ libraryDependencies ++= Seq(
 )
 
 routesGenerator := InjectedRoutesGenerator
+
+// Docker Configuration
+maintainer := "Pathfinder Team"
+dockerExposedPorts in Docker := Seq(9000, 9443)
