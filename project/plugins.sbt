@@ -16,3 +16,6 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-mocha" % "1.1.0")
 addSbtPlugin("com.typesafe.sbt" % "sbt-play-enhancer" % "1.1.0")
 
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "4.0.0")
+
+// For Docker on Windows.
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.4")
