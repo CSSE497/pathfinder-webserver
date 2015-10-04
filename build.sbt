@@ -9,7 +9,8 @@ scalaVersion := "2.11.6"
 libraryDependencies ++= Seq(
   javaJdbc,
   cache,
-  javaWs
+  javaWs,
+  "org.postgresql" % "postgresql" % "9.4-1203-jdbc42"
 )
 
 routesGenerator := InjectedRoutesGenerator
