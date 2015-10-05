@@ -4,6 +4,7 @@ import com.avaje.ebean.Model;
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.Entity;
+
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;

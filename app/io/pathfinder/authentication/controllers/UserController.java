@@ -98,12 +98,6 @@ public class UserController extends Controller{
       return badRequest("Email was not provided");
     }
 
-    String email = jsonEmail.asText();
-    User foundUser = User.find.byId(email);
-    if(foundUser != null) {
-      return badRequest("Email is already in use.");
-    }
-
     JsonNode jsonPassword = json.get("password");
     if(jsonPassword == null) {
       return badRequest("Password was not provided.");
