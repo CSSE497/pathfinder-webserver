@@ -1,5 +1,7 @@
 # Home page
-GET     /                           controllers.Application.index()
+POST    /registeruser               io.pathfinder.authentication.controllers.UserController.createUser()
+POST    /getuser                    io.pathfinder.authentication.controllers.UserController.getUser()
+GET    /getusers                   io.pathfinder.authentication.controllers.UserController.getUsers()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
