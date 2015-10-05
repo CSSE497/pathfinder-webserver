@@ -8,8 +8,15 @@ import play.mvc.Controller;
 import play.mvc.Result;
 
 import javax.persistence.PersistenceException;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Set;
 
 public class UserController extends Controller{
   public Result createUser() {
@@ -28,8 +35,19 @@ public class UserController extends Controller{
     User user;
     try {
       user = Json.fromJson(json, User.class);
-      user.save();
-      return created();
+      ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+      Validator validator = validatorFactory.getValidator();
+      Set<ConstraintViolation<User>> violations = validator.validate(user);
+      if(violations.size() == 0) {
+        user.save();
+        return created();
+      } else {
+        String violationString = "";
+        for(ConstraintViolation<User> violation: violations) {
+          violationString += violation.getMessage() + "\n";
+        }
+        return badRequest(violationString);
+      }
     } catch (PersistenceException e) {
       return internalServerError("Error saving user to the database: " + e.getMessage());
     }
@@ -64,7 +82,7 @@ public class UserController extends Controller{
   }
 
   public Result getUsers() {
-    List<Object> emails = User.find.findIds();
+    List<User> emails = User.find.all();
     return ok(Json.toJson(emails));
   }
 
@@ -110,8 +128,11 @@ public class UserController extends Controller{
     SecureRandom rand = new SecureRandom();
     byte[] bytes = new byte[User.userTokenLength];
 
-    // note: This self seeds using the OS's random number generator
+    // This self seeds using the OS's random number generator
     rand.nextBytes(bytes);
-    return new String(bytes);
+
+    // It must be ASCII, UTF standards create different length Strings for some reason
+    String s = new String(bytes, StandardCharsets.US_ASCII);
+    return s;
   }
 }

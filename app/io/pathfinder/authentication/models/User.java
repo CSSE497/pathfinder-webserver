@@ -1,10 +1,13 @@
 package io.pathfinder.authentication.models;
 
 import com.avaje.ebean.Model;
-import play.data.validation.Constraints;
+import org.hibernate.validator.constraints.Email;
+
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 public class User extends Model{
@@ -13,17 +16,16 @@ public class User extends Model{
   public static final int passwordMinLength = 6;
 
   @Id
-  @Constraints.Required(message = "Email is required")
-  @Constraints.Email(message = "Email is not valid")
+  @NotNull
+  @Email
   public String email;
 
-  @Constraints.Required(message = "Password is required")
-  @Constraints.Max(value = 6, message = "Password must be at least " + passwordMinLength + " characters.")
+  @NotNull
+  @Size(min = passwordMinLength)
   public String password;
 
-  @Constraints.Required(message = "User token is required")
-  @Constraints.MaxLength(value = userTokenLength, message = "User token must be " + userTokenLength + " bytes, over " + userTokenLength + " bytes")
-  @Constraints.MinLength(value = userTokenLength, message = "User token must be " + userTokenLength + " bytes, under " + userTokenLength + " bytes")
+  @NotNull
+  @Size(min = userTokenLength, max = userTokenLength)
   public String userToken;
 
   public static Find<String, User> find = new Find<String, User>(){};
