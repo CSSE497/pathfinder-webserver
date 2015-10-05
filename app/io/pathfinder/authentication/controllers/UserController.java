@@ -12,7 +12,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.List;
@@ -43,7 +42,7 @@ public class UserController extends Controller{
         return created();
       } else {
         String violationString = "";
-        for(ConstraintViolation<User> violation: violations) {
+        for(ConstraintViolation<?> violation: violations) {
           violationString += violation.getMessage() + "\n";
         }
         return badRequest(violationString);
@@ -81,6 +80,7 @@ public class UserController extends Controller{
     return null;
   }
 
+  // Will be removed later
   public Result getUsers() {
     List<User> emails = User.find.all();
     return ok(Json.toJson(emails));
@@ -132,7 +132,6 @@ public class UserController extends Controller{
     rand.nextBytes(bytes);
 
     // It must be ASCII, UTF standards create different length Strings for some reason
-    String s = new String(bytes, StandardCharsets.US_ASCII);
-    return s;
+    return new String(bytes, StandardCharsets.US_ASCII);
   }
 }
