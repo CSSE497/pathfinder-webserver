@@ -10,6 +10,7 @@ libraryDependencies ++= Seq(
   javaJdbc,
   cache,
   javaWs,
+  filters,
   "org.postgresql" % "postgresql" % "9.4-1203-jdbc42",
   "org.avaje.ebeanorm" % "avaje-ebeanorm-api" % "3.1.1",
   "javax.el" % "javax.el-api" % "3.0.0",
