@@ -1,6 +1,7 @@
 package io.pathfinder.authentication.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.pathfinder.authentication.models.User;
 import play.libs.Json;
@@ -48,7 +49,12 @@ public class UserController extends Controller{
         return badRequest(violationString);
       }
     } catch (PersistenceException e) {
-      return internalServerError("Error saving user to the database: " + e.getMessage());
+      return badRequest("User already exists");
+    } catch (RuntimeException e){
+      if(e.getCause() instanceof UnrecognizedPropertyException) {
+        return badRequest("Unrecognized property in JSON");
+      }
+      throw e;
     }
   }
 
@@ -59,6 +65,18 @@ public class UserController extends Controller{
 
     if(user != null) {
       return ok(Json.toJson(user));
+    }
+
+    return badRequest("Invalid user");
+  }
+
+  public Result getUserToken() {
+    JsonNode jsonNode = request().body().asJson();
+
+    User user = getValidUser(jsonNode);
+
+    if(user != null) {
+      return ok(Json.toJson(user.userToken));
     }
 
     return badRequest("Invalid user");
