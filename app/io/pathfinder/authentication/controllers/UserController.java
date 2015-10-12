@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.pathfinder.authentication.models.User;
+import io.pathfinder.util.Security;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -13,8 +14,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.util.List;
 import java.util.Set;
 
@@ -30,7 +29,7 @@ public class UserController extends Controller{
     ObjectNode json = (ObjectNode) jsonNode;
     json.remove("confirmPassword");
 
-    json.put("userToken", generateUserToken());
+    json.put("userToken", Security.generateToken(User.USER_TOKEN_LENGTH));
 
     User user;
     try {
@@ -134,16 +133,5 @@ public class UserController extends Controller{
     }
 
     return ok();
-  }
-
-  public static String generateUserToken() {
-    SecureRandom rand = new SecureRandom();
-    byte[] bytes = new byte[User.userTokenLength];
-
-    // This self seeds using the OS's random number generator
-    rand.nextBytes(bytes);
-
-    // It must be ASCII, UTF standards create different length Strings for some reason
-    return new String(bytes, StandardCharsets.US_ASCII);
   }
 }

@@ -12,8 +12,8 @@ import javax.validation.constraints.Size;
 @Entity
 public class User extends Model{
 
-  public static final int userTokenLength = 256;
-  public static final int passwordMinLength = 6;
+  public static final int USER_TOKEN_LENGTH = 256;
+  public static final int USER_PASSWORD_MIN_LENGTH = 6;
 
   @Id
   @NotNull(message = "Email was not provided")
@@ -21,11 +21,11 @@ public class User extends Model{
   public String email;
 
   @NotNull(message = "Password was not provided")
-  @Size(min = passwordMinLength, message = "Password was to short, it must be at least " + passwordMinLength + " characters")
+  @Size(min = USER_PASSWORD_MIN_LENGTH, message = "Password was too short, it must be at least " + USER_PASSWORD_MIN_LENGTH + " characters")
   public String password;
 
   @NotNull(message = "Token was not provided")
-  @Size(min = userTokenLength, max = userTokenLength, message = "Token must be " + userTokenLength + " characters")
+  @Size(min = USER_TOKEN_LENGTH, max = USER_TOKEN_LENGTH, message = "Token must be " + USER_TOKEN_LENGTH + " characters")
   public String userToken;
 
   public static Find<String, User> find = new Find<String, User>(){};
