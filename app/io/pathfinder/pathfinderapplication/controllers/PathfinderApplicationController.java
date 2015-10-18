@@ -3,6 +3,8 @@ package io.pathfinder.pathfinderapplication.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import io.pathfinder.pathfinderapplication.models.PathfinderApplication;
 import play.libs.F;
 import play.libs.F.Promise;
@@ -24,6 +26,8 @@ import javax.validation.ValidatorFactory;
 import java.util.Set;
 
 public class PathfinderApplicationController extends Controller {
+
+  Config config = ConfigFactory.load();
 
   @Inject
   WSClient ws;
@@ -55,7 +59,8 @@ public class PathfinderApplicationController extends Controller {
     Set<ConstraintViolation<PathfinderApplication>> violations = validator.validate(application);
 
     if (violations.size() == 0) {
-      WSRequest clusterCreateRequest = ws.url("http://localhost:9001/cluster");
+      String pathfinderServerURL = config.getString("pathfinder.server.url");
+      WSRequest clusterCreateRequest = ws.url(pathfinderServerURL + "/cluster");
       JsonNode clusterNode = Json.newObject();
 
       Promise<Result> resultPromise = clusterCreateRequest.post(clusterNode).map(
