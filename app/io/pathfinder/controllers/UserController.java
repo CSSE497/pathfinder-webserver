@@ -1,9 +1,9 @@
-package io.pathfinder.authentication.controllers;
+package io.pathfinder.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.pathfinder.authentication.models.User;
+import io.pathfinder.models.User;
 import io.pathfinder.util.Security;
 import play.libs.Json;
 import play.mvc.Controller;

@@ -1,4 +1,4 @@
-package io.pathfinder.pathfinderapplication.models;
+package io.pathfinder.models;
 
 import com.avaje.ebean.Model;
 

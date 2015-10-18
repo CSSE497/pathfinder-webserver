@@ -1,4 +1,4 @@
-package io.pathfinder.authentication.models;
+package io.pathfinder.models;
 
 import com.avaje.ebean.Model;
 import org.hibernate.validator.constraints.Email;
