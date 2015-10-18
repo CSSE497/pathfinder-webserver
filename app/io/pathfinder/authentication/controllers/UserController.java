@@ -7,6 +7,7 @@ import io.pathfinder.authentication.models.User;
 import io.pathfinder.util.Security;
 import play.libs.Json;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import javax.persistence.PersistenceException;
@@ -22,7 +23,7 @@ public class UserController extends Controller{
     JsonNode jsonNode = request().body().asJson();
 
     Result result = validateNewUser(jsonNode);
-    if(result.status() != 200) {
+    if(result.status() != Http.Status.OK) {
       return result;
     }
 
@@ -31,9 +32,8 @@ public class UserController extends Controller{
 
     json.put("userToken", Security.generateToken(User.USER_TOKEN_LENGTH));
 
-    User user;
     try {
-      user = Json.fromJson(json, User.class);
+      User user = Json.fromJson(json, User.class);
       ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
       Validator validator = validatorFactory.getValidator();
       Set<ConstraintViolation<User>> violations = validator.validate(user);
@@ -52,8 +52,9 @@ public class UserController extends Controller{
     } catch (RuntimeException e){
       if(e.getCause() instanceof UnrecognizedPropertyException) {
         return badRequest("Unrecognized property in JSON");
+      } else {
+        throw e;
       }
-      throw e;
     }
   }
 

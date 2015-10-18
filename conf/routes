@@ -2,3 +2,4 @@ POST    /registeruser               io.pathfinder.authentication.controllers.Use
 POST    /getuser                    io.pathfinder.authentication.controllers.UserController.getUser()
 POST    /getusertoken               io.pathfinder.authentication.controllers.UserController.getUserToken()
 GET     /getusers                   io.pathfinder.authentication.controllers.UserController.getUsers()
+POST    /createapplication          io.pathfinder.pathfinderapplication.controllers.PathfinderApplicationController.createApplication()
