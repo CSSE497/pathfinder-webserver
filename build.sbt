@@ -22,3 +22,6 @@ routesGenerator := InjectedRoutesGenerator
 // Docker Configuration
 maintainer := "Pathfinder Team"
 dockerExposedPorts in Docker := Seq(9000, 9443)
+
+// Determines which scala files not to measure with Coveralls.
+scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := "<empty>;controllers\\..*Reverse.*;router\\..*Routes.*"
