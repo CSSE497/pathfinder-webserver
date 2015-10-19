@@ -3,9 +3,10 @@ package io.pathfinder.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.pathfinder.models.User;
+import io.pathfinder.models.PathfinderUser;
 import io.pathfinder.util.Security;
 import play.libs.Json;
+import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -18,7 +19,9 @@ import javax.validation.ValidatorFactory;
 import java.util.List;
 import java.util.Set;
 
-public class UserController extends Controller{
+public class PathfinderUserController extends Controller{
+
+  @BodyParser.Of(BodyParser.Json.class)
   public Result createUser() {
     JsonNode jsonNode = request().body().asJson();
 
@@ -30,13 +33,13 @@ public class UserController extends Controller{
     ObjectNode json = (ObjectNode) jsonNode;
     json.remove("confirmPassword");
 
-    json.put("userToken", Security.generateToken(User.USER_TOKEN_LENGTH));
+    json.put("userToken", Security.generateToken(PathfinderUser.USER_TOKEN_LENGTH));
 
     try {
-      User user = Json.fromJson(json, User.class);
+      PathfinderUser user = Json.fromJson(json, PathfinderUser.class);
       ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
       Validator validator = validatorFactory.getValidator();
-      Set<ConstraintViolation<User>> violations = validator.validate(user);
+      Set<ConstraintViolation<PathfinderUser>> violations = validator.validate(user);
       if(violations.size() == 0) {
         user.save();
         return created();
@@ -48,7 +51,7 @@ public class UserController extends Controller{
         return badRequest(violationString);
       }
     } catch (PersistenceException e) {
-      return badRequest("User already exists");
+      return badRequest("PathfinderUser already exists");
     } catch (RuntimeException e){
       if(e.getCause() instanceof UnrecognizedPropertyException) {
         return badRequest("Unrecognized property in JSON");
@@ -58,10 +61,11 @@ public class UserController extends Controller{
     }
   }
 
+  @BodyParser.Of(BodyParser.Json.class)
   public Result getUser() {
     JsonNode jsonNode = request().body().asJson();
 
-    User user = getValidUser(jsonNode);
+    PathfinderUser user = getValidUser(jsonNode);
 
     if(user != null) {
       return ok(Json.toJson(user));
@@ -70,10 +74,11 @@ public class UserController extends Controller{
     return badRequest("Invalid user");
   }
 
+  @BodyParser.Of(BodyParser.Json.class)
   public Result getUserToken() {
     JsonNode jsonNode = request().body().asJson();
 
-    User user = getValidUser(jsonNode);
+    PathfinderUser user = getValidUser(jsonNode);
 
     if(user != null) {
       return ok(Json.toJson(user.userToken));
@@ -82,9 +87,10 @@ public class UserController extends Controller{
     return badRequest("Invalid user");
   }
 
-  private User getValidUser(JsonNode jsonNode) {
+  @BodyParser.Of(BodyParser.Json.class)
+  private PathfinderUser getValidUser(JsonNode jsonNode) {
     String email = jsonNode.get("email").asText();
-    User user = User.find.byId(email);
+    PathfinderUser user = PathfinderUser.find.byId(email);
 
     if(user == null) {
       return null;
@@ -100,12 +106,12 @@ public class UserController extends Controller{
 
   // Will be removed later
   public Result getUsers() {
-    List<User> emails = User.find.all();
+    List<PathfinderUser> emails = PathfinderUser.find.all();
     return ok(Json.toJson(emails));
   }
 
   private Result validateNewUser(JsonNode jsonNode) {
-    if(!(jsonNode instanceof ObjectNode)) {
+    if(!jsonNode.isObject()) {
       return badRequest("Json not an object");
     }
 

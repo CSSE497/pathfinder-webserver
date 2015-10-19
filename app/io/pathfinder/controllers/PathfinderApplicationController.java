@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.pathfinder.models.PathfinderApplication;
-import play.libs.F;
+
+import play.libs.F.Function;
 import play.libs.F.Promise;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -62,7 +63,7 @@ public class PathfinderApplicationController extends Controller {
 
       JsonNode clusterNode = Json.newObject();
       Promise<Result> resultPromise = clusterCreateRequest.post(clusterNode).map(
-          new F.Function<WSResponse, Result>() {
+          new Function<WSResponse, Result>() {
             public Result apply(WSResponse response) {
               if (response.getStatus() == Http.Status.CREATED) {
                 application.clusterId = response.asJson().findValue("id").longValue();

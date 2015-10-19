@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Entity
-public class User extends Model{
+public class PathfinderUser extends Model{
 
   public static final int USER_TOKEN_LENGTH = 256;
   public static final int USER_PASSWORD_MIN_LENGTH = 6;
@@ -28,5 +28,5 @@ public class User extends Model{
   @Size(min = USER_TOKEN_LENGTH, max = USER_TOKEN_LENGTH, message = "Token must be " + USER_TOKEN_LENGTH + " characters")
   public String userToken;
 
-  public static Find<String, User> find = new Find<String, User>(){};
+  public static Find<String, PathfinderUser> find = new Find<String, PathfinderUser>(){};
 }
