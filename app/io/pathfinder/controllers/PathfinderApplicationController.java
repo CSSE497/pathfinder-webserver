@@ -70,6 +70,7 @@ public class PathfinderApplicationController extends Controller {
                 application.save();
                 return ok(Json.toJson(application));
               } else {
+                application.delete();
                 return badRequest(response.asJson());
               }
             }
