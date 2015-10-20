@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.pathfinder.models.PathfinderApplication;
+import io.pathfinder.util.Security;
 
 import play.libs.F.Function;
 import play.libs.F.Promise;
@@ -52,39 +53,48 @@ public class PathfinderApplicationController extends Controller {
 
     PathfinderApplication application = Json.fromJson(jsonNode, PathfinderApplication.class);
 
-    ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-    Validator validator = validatorFactory.getValidator();
-    Set<ConstraintViolation<PathfinderApplication>> violations = validator.validate(application);
+    String pathfinderServerURL = config.getString("pathfinder.server.url");
+    WSRequest clusterCreateRequest = ws.url(pathfinderServerURL + "/cluster");
 
-    if (violations.size() == 0) {
-
-      String pathfinderServerURL = config.getString("pathfinder.server.url");
-      WSRequest clusterCreateRequest = ws.url(pathfinderServerURL + "/cluster");
-
-      JsonNode clusterNode = Json.newObject();
-      Promise<Result> resultPromise = clusterCreateRequest.post(clusterNode).map(
-          new Function<WSResponse, Result>() {
-            public Result apply(WSResponse response) {
-              if (response.getStatus() == Http.Status.CREATED) {
-                application.clusterId = response.asJson().findValue("id").longValue();
-                application.save();
-                return ok(Json.toJson(application));
-              } else {
-                application.delete();
-                return badRequest(response.asJson());
-              }
-            }
-          }
-      );
-
-      return resultPromise;
-    } else {
-      String violationString = "";
-      for (ConstraintViolation<PathfinderApplication> violation : violations) {
-        violationString += violation.getMessage() + "\n";
-      }
-      return Promise.pure(badRequest(violationString));
-    }
+    JsonNode clusterNode = Json.newObject();
+    return clusterCreateRequest.post(clusterNode).map(new CreateApplicationResponse(application));
   }
 
+  private class CreateApplicationResponse implements Function<WSResponse, Result>{
+
+    private PathfinderApplication application;
+
+    public CreateApplicationResponse(PathfinderApplication application) {
+      this.application = application;
+    }
+
+    @Override
+    public Result apply(WSResponse response) throws Throwable {
+      if (response.getStatus() != Http.Status.CREATED) {
+        return badRequest(response.asJson());
+      }
+
+      application.clusterId = response.asJson().findValue("id").longValue();
+      application.token = Security.generateToken(PathfinderApplication.TOKEN_LENGTH);
+
+      ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+      Validator validator = validatorFactory.getValidator();
+      Set<ConstraintViolation<PathfinderApplication>> violations = validator.validate(application);
+
+      if(violations.size() == 0) {
+        application.save();
+        return ok(Json.toJson(application));
+      } else {
+        String pathfinderServerURL = config.getString("pathfinder.server.url");
+        WSRequest clusterDeleteRequest = ws.url(pathfinderServerURL + "/cluster/" + application.clusterId);
+        clusterDeleteRequest.delete();
+
+        String violationString = "";
+        for (ConstraintViolation<PathfinderApplication> violation : violations) {
+          violationString += violation.getMessage() + "\n";
+        }
+        return badRequest(Json.toJson(violationString));
+      }
+    }
+  }
 }
