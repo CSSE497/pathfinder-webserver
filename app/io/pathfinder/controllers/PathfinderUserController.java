@@ -1,9 +1,10 @@
-package io.pathfinder.authentication.controllers;
+package io.pathfinder.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.pathfinder.authentication.models.User;
+import io.pathfinder.annotations.interfaces.RequireJson;
+import io.pathfinder.models.PathfinderUser;
 import io.pathfinder.util.Security;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -18,7 +19,9 @@ import javax.validation.ValidatorFactory;
 import java.util.List;
 import java.util.Set;
 
-public class UserController extends Controller{
+public class PathfinderUserController extends Controller{
+
+  @RequireJson()
   public Result createUser() {
     JsonNode jsonNode = request().body().asJson();
 
@@ -30,13 +33,13 @@ public class UserController extends Controller{
     ObjectNode json = (ObjectNode) jsonNode;
     json.remove("confirmPassword");
 
-    json.put("userToken", Security.generateToken(User.USER_TOKEN_LENGTH));
+    json.put("userToken", Security.generateToken(PathfinderUser.USER_TOKEN_LENGTH));
 
     try {
-      User user = Json.fromJson(json, User.class);
+      PathfinderUser user = Json.fromJson(json, PathfinderUser.class);
       ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
       Validator validator = validatorFactory.getValidator();
-      Set<ConstraintViolation<User>> violations = validator.validate(user);
+      Set<ConstraintViolation<PathfinderUser>> violations = validator.validate(user);
       if(violations.size() == 0) {
         user.save();
         return created();
@@ -48,7 +51,7 @@ public class UserController extends Controller{
         return badRequest(violationString);
       }
     } catch (PersistenceException e) {
-      return badRequest("User already exists");
+      return badRequest("Username already exists");
     } catch (RuntimeException e){
       if(e.getCause() instanceof UnrecognizedPropertyException) {
         return badRequest("Unrecognized property in JSON");
@@ -58,10 +61,11 @@ public class UserController extends Controller{
     }
   }
 
+  @RequireJson()
   public Result getUser() {
     JsonNode jsonNode = request().body().asJson();
 
-    User user = getValidUser(jsonNode);
+    PathfinderUser user = getValidUser(jsonNode);
 
     if(user != null) {
       return ok(Json.toJson(user));
@@ -70,10 +74,11 @@ public class UserController extends Controller{
     return badRequest("Invalid user");
   }
 
+  @RequireJson()
   public Result getUserToken() {
     JsonNode jsonNode = request().body().asJson();
 
-    User user = getValidUser(jsonNode);
+    PathfinderUser user = getValidUser(jsonNode);
 
     if(user != null) {
       return ok(Json.toJson(user.userToken));
@@ -82,15 +87,15 @@ public class UserController extends Controller{
     return badRequest("Invalid user");
   }
 
-  private User getValidUser(JsonNode jsonNode) {
-    String email = jsonNode.get("email").asText();
-    User user = User.find.byId(email);
+  private PathfinderUser getValidUser(JsonNode jsonNode) {
+    String username = jsonNode.get("username").textValue();
+    PathfinderUser user = PathfinderUser.find.byId(username);
 
     if(user == null) {
       return null;
     }
 
-    String password = jsonNode.get("password").asText();
+    String password = jsonNode.get("password").textValue();
     if(password.equals(user.password)) {
       return user;
     }
@@ -100,34 +105,32 @@ public class UserController extends Controller{
 
   // Will be removed later
   public Result getUsers() {
-    List<User> emails = User.find.all();
-    return ok(Json.toJson(emails));
+    List<PathfinderUser> usernames = PathfinderUser.find.all();
+    return ok(Json.toJson(usernames));
   }
 
   private Result validateNewUser(JsonNode jsonNode) {
-    if(!(jsonNode instanceof ObjectNode)) {
+    if(!jsonNode.isObject()) {
       return badRequest("Json not an object");
     }
 
     ObjectNode json = (ObjectNode) jsonNode;
 
-    JsonNode jsonEmail = json.get("email");
-    if(jsonEmail == null) {
-      return badRequest("Email was not provided");
+    if(!json.has("username") || !json.get("username").isTextual()) {
+      return badRequest("Username was not provided");
     }
 
-    JsonNode jsonPassword = json.get("password");
-    if(jsonPassword == null) {
+    if(!json.has("password") || !json.get("password").isTextual()) {
       return badRequest("Password was not provided.");
     }
 
     JsonNode jsonConfirmPassword = json.get("confirmPassword");
-    if(jsonConfirmPassword == null) {
+    if(!json.has("confirmPassword") || !json.get("confirmPasswor").isTextual()) {
       return badRequest("Confirm password was not provided");
     }
 
-    String password = jsonPassword.asText();
-    String confirmPassword = jsonConfirmPassword.asText();
+    String password = json.get("password").textValue();
+    String confirmPassword = json.get("confirmPassword").textValue();
 
     if(!password.equals(confirmPassword)) {
       return badRequest("Passwords do not match");
