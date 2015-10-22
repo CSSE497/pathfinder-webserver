@@ -24,6 +24,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.util.Set;
+import java.util.UUID;
 
 public class PathfinderApplicationController extends Controller {
 
@@ -77,6 +78,11 @@ public class PathfinderApplicationController extends Controller {
 
       application.clusterId = response.asJson().findValue("id").longValue();
       application.token = Security.generateToken(PathfinderApplication.TOKEN_LENGTH);
+      application.UUID = UUID.randomUUID();
+
+      while(PathfinderApplication.find.where().eq("UUID", application.UUID).findUnique() != null) {
+        application.UUID = UUID.randomUUID();
+      }
 
       ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
       Validator validator = validatorFactory.getValidator();
