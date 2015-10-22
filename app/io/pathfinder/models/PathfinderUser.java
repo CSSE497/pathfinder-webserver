@@ -16,9 +16,8 @@ public class PathfinderUser extends Model{
   public static final int USER_PASSWORD_MIN_LENGTH = 6;
 
   @Id
-  @NotNull(message = "Email was not provided")
-  @Email(message = "Invalid email address")
-  public String email;
+  @NotNull(message = "Username was not provided")
+  public String username;
 
   @NotNull(message = "Password was not provided")
   @Size(min = USER_PASSWORD_MIN_LENGTH, message = "Password was too short, it must be at least " + USER_PASSWORD_MIN_LENGTH + " characters")

@@ -7,7 +7,6 @@ import io.pathfinder.annotations.interfaces.RequireJson;
 import io.pathfinder.models.PathfinderUser;
 import io.pathfinder.util.Security;
 import play.libs.Json;
-import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -52,7 +51,7 @@ public class PathfinderUserController extends Controller{
         return badRequest(violationString);
       }
     } catch (PersistenceException e) {
-      return badRequest("PathfinderUser already exists");
+      return badRequest("Username already exists");
     } catch (RuntimeException e){
       if(e.getCause() instanceof UnrecognizedPropertyException) {
         return badRequest("Unrecognized property in JSON");
@@ -89,8 +88,8 @@ public class PathfinderUserController extends Controller{
   }
 
   private PathfinderUser getValidUser(JsonNode jsonNode) {
-    String email = jsonNode.get("email").asText();
-    PathfinderUser user = PathfinderUser.find.byId(email);
+    String username = jsonNode.get("username").asText();
+    PathfinderUser user = PathfinderUser.find.byId(username);
 
     if(user == null) {
       return null;
@@ -106,8 +105,8 @@ public class PathfinderUserController extends Controller{
 
   // Will be removed later
   public Result getUsers() {
-    List<PathfinderUser> emails = PathfinderUser.find.all();
-    return ok(Json.toJson(emails));
+    List<PathfinderUser> usernames = PathfinderUser.find.all();
+    return ok(Json.toJson(usernames));
   }
 
   private Result validateNewUser(JsonNode jsonNode) {
@@ -117,9 +116,9 @@ public class PathfinderUserController extends Controller{
 
     ObjectNode json = (ObjectNode) jsonNode;
 
-    JsonNode jsonEmail = json.get("email");
-    if(jsonEmail == null) {
-      return badRequest("Email was not provided");
+    JsonNode jsonUsername = json.get("username");
+    if(jsonUsername == null) {
+      return badRequest("Username was not provided");
     }
 
     JsonNode jsonPassword = json.get("password");

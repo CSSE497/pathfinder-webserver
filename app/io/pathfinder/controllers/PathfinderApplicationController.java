@@ -80,7 +80,7 @@ public class PathfinderApplicationController extends Controller {
       application.token = Security.generateToken(PathfinderApplication.TOKEN_LENGTH);
       application.UUID = UUID.randomUUID();
 
-      while(PathfinderApplication.find.where().eq("UUID", application.UUID).findUnique() != null) {
+      while(PathfinderApplication.find.byId(application.UUID) != null) {
         application.UUID = UUID.randomUUID();
       }
 

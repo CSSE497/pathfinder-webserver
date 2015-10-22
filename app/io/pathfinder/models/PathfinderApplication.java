@@ -33,5 +33,5 @@ public class PathfinderApplication extends Model {
   @Min(value = 1, message = "Invalid cluster id")
   public Long clusterId;
 
-  public static Find<Long, PathfinderApplication> find = new Find<Long, PathfinderApplication>(){};
+  public static Find<UUID, PathfinderApplication> find = new Find<UUID, PathfinderApplication>(){};
 }
