@@ -88,14 +88,14 @@ public class PathfinderUserController extends Controller{
   }
 
   private PathfinderUser getValidUser(JsonNode jsonNode) {
-    String username = jsonNode.get("username").asText();
+    String username = jsonNode.get("username").textValue();
     PathfinderUser user = PathfinderUser.find.byId(username);
 
     if(user == null) {
       return null;
     }
 
-    String password = jsonNode.get("password").asText();
+    String password = jsonNode.get("password").textValue();
     if(password.equals(user.password)) {
       return user;
     }
@@ -116,23 +116,21 @@ public class PathfinderUserController extends Controller{
 
     ObjectNode json = (ObjectNode) jsonNode;
 
-    JsonNode jsonUsername = json.get("username");
-    if(jsonUsername == null) {
+    if(!json.has("username") || !json.get("username").isTextual()) {
       return badRequest("Username was not provided");
     }
 
-    JsonNode jsonPassword = json.get("password");
-    if(jsonPassword == null) {
+    if(!json.has("password") || !json.get("password").isTextual()) {
       return badRequest("Password was not provided.");
     }
 
     JsonNode jsonConfirmPassword = json.get("confirmPassword");
-    if(jsonConfirmPassword == null) {
+    if(!json.has("confirmPassword") || !json.get("confirmPasswor").isTextual()) {
       return badRequest("Confirm password was not provided");
     }
 
-    String password = jsonPassword.asText();
-    String confirmPassword = jsonConfirmPassword.asText();
+    String password = json.get("password").textValue();
+    String confirmPassword = json.get("confirmPassword").textValue();
 
     if(!password.equals(confirmPassword)) {
       return badRequest("Passwords do not match");
