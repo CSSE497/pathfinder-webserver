@@ -3,6 +3,7 @@ package io.pathfinder.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import io.pathfinder.annotations.interfaces.RequireJson;
 import io.pathfinder.models.PathfinderApplication;
 import io.pathfinder.util.Security;
 
@@ -31,7 +32,7 @@ public class PathfinderApplicationController extends Controller {
   @Inject
   WSClient ws;
 
-  @BodyParser.Of(BodyParser.Json.class)
+  @RequireJson()
   public Promise<Result> createApplication() {
     JsonNode jsonNode = request().body().asJson();
     if (!jsonNode.isObject()) {

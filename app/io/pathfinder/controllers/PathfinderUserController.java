@@ -3,6 +3,7 @@ package io.pathfinder.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.pathfinder.annotations.interfaces.RequireJson;
 import io.pathfinder.models.PathfinderUser;
 import io.pathfinder.util.Security;
 import play.libs.Json;
@@ -21,7 +22,7 @@ import java.util.Set;
 
 public class PathfinderUserController extends Controller{
 
-  @BodyParser.Of(BodyParser.Json.class)
+  @RequireJson()
   public Result createUser() {
     JsonNode jsonNode = request().body().asJson();
 
@@ -61,7 +62,7 @@ public class PathfinderUserController extends Controller{
     }
   }
 
-  @BodyParser.Of(BodyParser.Json.class)
+  @RequireJson()
   public Result getUser() {
     JsonNode jsonNode = request().body().asJson();
 
@@ -74,7 +75,7 @@ public class PathfinderUserController extends Controller{
     return badRequest("Invalid user");
   }
 
-  @BodyParser.Of(BodyParser.Json.class)
+  @RequireJson()
   public Result getUserToken() {
     JsonNode jsonNode = request().body().asJson();
 
@@ -87,7 +88,6 @@ public class PathfinderUserController extends Controller{
     return badRequest("Invalid user");
   }
 
-  @BodyParser.Of(BodyParser.Json.class)
   private PathfinderUser getValidUser(JsonNode jsonNode) {
     String email = jsonNode.get("email").asText();
     PathfinderUser user = PathfinderUser.find.byId(email);
