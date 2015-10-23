@@ -33,13 +33,15 @@ public class PathfinderUserController extends Controller{
     ObjectNode json = (ObjectNode) jsonNode;
     json.remove("confirmPassword");
 
-    json.put("userToken", Security.generateToken(PathfinderUser.USER_TOKEN_LENGTH));
+    json.put("userToken", Security.generateToken(PathfinderUser.TOKEN_LENGTH));
 
     try {
       PathfinderUser user = Json.fromJson(json, PathfinderUser.class);
+      
       ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
       Validator validator = validatorFactory.getValidator();
       Set<ConstraintViolation<PathfinderUser>> violations = validator.validate(user);
+
       if(violations.size() == 0) {
         user.save();
         return created();
@@ -116,6 +118,10 @@ public class PathfinderUserController extends Controller{
 
     ObjectNode json = (ObjectNode) jsonNode;
 
+    if(json.size() != PathfinderUser.REQUIRED_CREATE_FIELDS) {
+      return badRequest("Wrong number of fields to create a user");
+    }
+
     if(!json.has("username") || !json.get("username").isTextual()) {
       return badRequest("Username was not provided");
     }
@@ -124,8 +130,7 @@ public class PathfinderUserController extends Controller{
       return badRequest("Password was not provided.");
     }
 
-    JsonNode jsonConfirmPassword = json.get("confirmPassword");
-    if(!json.has("confirmPassword") || !json.get("confirmPasswor").isTextual()) {
+    if(!json.has("confirmPassword") || !json.get("confirmPassword").isTextual()) {
       return badRequest("Confirm password was not provided");
     }
 

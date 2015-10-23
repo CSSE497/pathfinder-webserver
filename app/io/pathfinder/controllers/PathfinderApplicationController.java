@@ -40,13 +40,8 @@ public class PathfinderApplicationController extends Controller {
       return Promise.pure(badRequest("Json sent was not a Json objects"));
     }
 
-    int size = jsonNode.size();
-    if (size > PathfinderApplication.REQUIRED_CREATE_FIELDS) {
-      return Promise.pure(badRequest("Too many fields were detected in the application create request"));
-    }
-
-    if (size < PathfinderApplication.REQUIRED_CREATE_FIELDS) {
-      return Promise.pure(badRequest("Too few fields were detected in the application create request"));
+    if (jsonNode.size() != PathfinderApplication.REQUIRED_CREATE_FIELDS) {
+      return Promise.pure(badRequest("The wrong number fields were detected in the application create request"));
     }
 
     if(!jsonNode.has("name")) {
