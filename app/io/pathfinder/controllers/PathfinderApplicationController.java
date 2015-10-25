@@ -76,7 +76,7 @@ public class PathfinderApplicationController extends Controller {
       }
 
       application.clusterId = response.asJson().findValue("id").longValue();
-      application.token = Security.generateToken(PathfinderApplication.TOKEN_LENGTH).getBytes();
+      application.token = Security.generateToken(PathfinderApplication.TOKEN_LENGTH);
 
       do {
         application.id = UUID.randomUUID();
