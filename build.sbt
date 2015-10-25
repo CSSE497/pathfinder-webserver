@@ -14,9 +14,13 @@ libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "9.4-1203-jdbc42",
   "org.avaje.ebeanorm" % "avaje-ebeanorm-api" % "3.1.1",
   "javax.el" % "javax.el-api" % "3.0.0",
-  "com.sun.el" % "el-ri" % "1.0"
+  "com.sun.el" % "el-ri" % "1.0",
+  "org.scalatest" %% "scalatest" % "2.2.1" % "test",
+  "org.scalatestplus" %% "play" % "1.4.0-M3" % "test"
 )
 
+
+testOptions += Tests.Argument(TestFrameworks.JUnit, "-v", "-q", "-a")
 routesGenerator := InjectedRoutesGenerator
 
 // Docker Configuration
