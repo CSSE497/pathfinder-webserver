@@ -24,7 +24,10 @@ testOptions += Tests.Argument(TestFrameworks.JUnit, "-v", "-q", "-a")
 routesGenerator := InjectedRoutesGenerator
 
 // Docker Configuration
+packageName in Docker := "pathfinder-webserver"
+version in Docker := "0.1.0"
 maintainer := "Pathfinder Team"
+dockerRepository := Some("beta.gcr.io/phonic-aquifer-105721")
 dockerExposedPorts in Docker := Seq(9000, 9443)
 
 // Determines which scala files not to measure with Coveralls.
