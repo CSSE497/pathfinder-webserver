@@ -15,15 +15,14 @@ public class PathfinderApplication extends Model {
 
   public static final int NAME_MIN_LENGTH = 1;
   public static final int REQUIRED_CREATE_FIELDS = 1;
-  public static final int TOKEN_LENGTH = 256;
+  public static final int TOKEN_LENGTH = 255;
 
   @Id
-  @NotNull(message = "UUID cannot be null")
-  public UUID UUID;
+  @NotNull(message = "Id cannot be null")
+  public UUID id;
 
   @NotNull(message = "Application token not present")
-  @Size(min = TOKEN_LENGTH, max = TOKEN_LENGTH, message = "Application token was not the right length, it must be" + TOKEN_LENGTH)
-  public String token;
+  public byte[] token;
 
   @NotNull(message = "Application name was not provided")
   @Size(min = NAME_MIN_LENGTH, message = "Application name was too short, it must be at least " + NAME_MIN_LENGTH + " characters")
@@ -31,7 +30,7 @@ public class PathfinderApplication extends Model {
 
   @NotNull(message = "Cluster id not present")
   @Min(value = 1, message = "Invalid cluster id")
-  public Long clusterId;
+  public long clusterId;
 
   public static Find<UUID, PathfinderApplication> find = new Find<UUID, PathfinderApplication>(){};
 }

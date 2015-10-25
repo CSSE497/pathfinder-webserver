@@ -27,8 +27,7 @@ public class PathfinderUser extends Model{
   public String password;
 
   @NotNull(message = "Token was not provided")
-  @Size(min = TOKEN_LENGTH, max = TOKEN_LENGTH, message = "Token must be " + TOKEN_LENGTH + " characters")
-  public String userToken;
+  public byte[] userToken;
 
   @JsonIgnore
   public String getPassword() {
