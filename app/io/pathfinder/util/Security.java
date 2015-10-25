@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 
 public class Security {
-  public static String generateToken(int length) {
+  public static byte[] generateToken(int length) {
     SecureRandom rand = new SecureRandom();
     byte[] bytes = new byte[length];
 
@@ -12,6 +12,6 @@ public class Security {
     rand.nextBytes(bytes);
 
     // It must be ASCII, UTF standards create different length Strings for some reason
-    return new String(bytes, StandardCharsets.US_ASCII);
+    return bytes;
   }
 }
