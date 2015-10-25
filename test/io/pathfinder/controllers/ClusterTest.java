@@ -26,7 +26,6 @@ import io.pathfinder.models.Commodity;
 import java.util.LinkedList;
 import java.util.List;
 
-@RunWith(JUnit4.class)
 public class ClusterTest {
   private JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
   private FakeApplication fakeApp;
