@@ -1,4 +1,0 @@
-[submodule "public/pathfinder-webclient"]
-	path = public/pathfinder-webclient
-	url =https://github.com/csse497/pathfinder-webclient
-	branch = dev
