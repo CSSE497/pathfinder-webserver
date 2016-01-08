@@ -5,39 +5,28 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.Entity;
-
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-@Entity
-public class PathfinderUser extends Model{
+@Entity public class PathfinderUser extends Model {
 
-  public static final int TOKEN_LENGTH = 256;
-  public static final int PASSWORD_MIN_LENGTH = 6;
-  public static final int REQUIRED_CREATE_FIELDS = 3;
+    public static final int TOKEN_LENGTH = 256;
+    public static final int PASSWORD_MIN_LENGTH = 6;
+    public static final int REQUIRED_CREATE_FIELDS = 3;
+    public static Find<String, PathfinderUser> find = new Find<String, PathfinderUser>() {
+    };
+    @Id @NotNull(message = "Username was not provided") public String username;
+    @JsonIgnore @NotNull(message = "Password was not provided")
+    @Size(min = PASSWORD_MIN_LENGTH, message = "Password was too short, it must be at least "
+        + PASSWORD_MIN_LENGTH + " characters") public String password;
+    @NotNull(message = "Token was not provided") public byte[] userToken;
 
-  @Id
-  @NotNull(message = "Username was not provided")
-  public String username;
+    @JsonIgnore public String getPassword() {
+        return password;
+    }
 
-  @JsonIgnore
-  @NotNull(message = "Password was not provided")
-  @Size(min = PASSWORD_MIN_LENGTH, message = "Password was too short, it must be at least " + PASSWORD_MIN_LENGTH + " characters")
-  public String password;
-
-  @NotNull(message = "Token was not provided")
-  public byte[] userToken;
-
-  @JsonIgnore
-  public String getPassword() {
-    return password;
-  }
-
-  @JsonProperty
-  public void setPassword(String pass) {
-    password = pass;
-  }
-
-  public static Find<String, PathfinderUser> find = new Find<String, PathfinderUser>(){};
+    @JsonProperty public void setPassword(String pass) {
+        password = pass;
+    }
 }
