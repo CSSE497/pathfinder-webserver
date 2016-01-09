@@ -1,10 +1,10 @@
 package models;
 
 import com.avaje.ebean.Model;
-import com.avaje.ebean.validation.NotNull;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 
 @Entity public class ObjectiveFunction extends Model {
     public static final String MIN_DIST = "MIN_DIST";

@@ -4,7 +4,6 @@ import com.avaje.ebean.Model;
 
 import java.security.Timestamp;
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -18,19 +17,23 @@ import javax.validation.constraints.NotNull;
 
     public static final int REQUIRED_CREATE_FIELDS = 1;
     public static final int TOKEN_LENGTH = 255;
-    public static final Find<UUID, Application> find = new Find<UUID, Application>() {
+    public static final Find<String, Application> find = new Find<String, Application>() {
     };
 
-    @Id @NotNull(message = "Id cannot be null") public UUID id;
+    @Id @NotNull(message = "Id cannot be null") public String id;
+
     @NotNull(message = "Application name was not provided") public String name;
+
     @ManyToOne public Customer customer;
+
     @NotNull(message = "Cluster id not present") public long clusterId;
-    @OneToMany(mappedBy = "application", cascade = CascadeType.ALL) public List<CapacityParameter>
-        constraintParameters;
+
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL) public List<CapacityParameter>
         capacityParameters;
+
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL) public List<ObjectiveParameter>
         objectiveParameters;
+
     @NotNull @ManyToOne public ObjectiveFunction objectiveFunction;
 
     @Version public Timestamp lastUpdate;
