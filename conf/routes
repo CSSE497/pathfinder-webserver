@@ -13,6 +13,7 @@ GET         /application/:id          controllers.ApplicationController.applicat
 POST        /createapplication        controllers.ApplicationController.create()
 GET         /setcapacities            controllers.ApplicationController.setCapacities()
 GET         /setobjectives            controllers.ApplicationController.setObjectives()
+GET         /setobjectivefunction     controllers.ApplicationController.setObjectiveFunction()
 
 GET         /bower_components/*file   controllers.Assets.at(path="/public/website/bower_components", file)
 GET         /dist/*file               controllers.Assets.at(path="/public/website/dist", file)

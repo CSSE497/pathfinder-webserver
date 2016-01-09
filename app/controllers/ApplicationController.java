@@ -17,6 +17,7 @@ import models.Customer;
 import models.ObjectiveFunction;
 import models.ObjectiveParameter;
 import play.Logger;
+import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.ws.WSClient;
 import play.mvc.Controller;
@@ -38,7 +39,8 @@ public class ApplicationController extends Controller {
         List<Application> apps = Customer.find.byId(session("email")).applications;
         session().put("app", id.toString());
         app.objectiveFunction.refresh();
-        return ok(application.render(app, apps, form(Parameters.class), form(Parameters.class)));
+        return ok(
+            application.render(app, apps, form(Parameters.class), form(Parameters.class), form()));
     }
 
     @Security.Authenticated(SignedIn.class) public Result create() {
@@ -113,6 +115,30 @@ public class ApplicationController extends Controller {
                 app.objectiveParameters.stream().map(x -> x.parameter).collect(toList())));
             return redirect(routes.ApplicationController.application(app.id));
         }
+    }
+
+    @Security.Authenticated(SignedIn.class) public Result setObjectiveFunction() {
+        DynamicForm requestData = Form.form().bindFromRequest();
+        Application app = Application.find.byId(UUID.fromString(session("app")));
+        ObjectiveFunction function;
+        switch (requestData.get("functionsradios")) {
+            case ObjectiveFunction.MIN_DIST:
+                function = ObjectiveFunction.find.byId(ObjectiveFunction.MIN_DIST);
+                break;
+            case ObjectiveFunction.MIN_TIME:
+                function = ObjectiveFunction.find.byId(ObjectiveFunction.MIN_TIME);
+                break;
+            default:
+                function = new ObjectiveFunction();
+                function.id = UUID.randomUUID().toString();
+                function.function = requestData.get("function");
+                function.save();
+                break;
+        }
+        app.objectiveFunction = function;
+        app.save();
+        Logger.info(String.format("Set objective function for %s: %s", app.id, function.function));
+        return redirect(routes.ApplicationController.application(app.id));
     }
 
     private int createDefaultCluster() {

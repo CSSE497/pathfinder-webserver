@@ -1,4 +1,4 @@
-@(app: Application, apps: List[Application], capacityForm: Form[ApplicationController.Parameters], objectivesForm: Form[ApplicationController.Parameters])
+@(app: Application, apps: List[Application], capacityForm: Form[ApplicationController.Parameters], objectivesForm: Form[ApplicationController.Parameters], objectiveFunctionForm: DynamicForm)
 
 <!DOCTYPE html>
 <html lang="en">
@@ -47,7 +47,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="@routes.IndexController.index()">Pathfinder</a>
+                <a class="navbar-brand" href="@routes.IndexController.index()">The Pathfinder</a>
             </div>
             <!-- /.navbar-header -->
 
@@ -117,7 +117,7 @@
                             @helper.form(routes.ApplicationController.setCapacities(), 'id -> "capacitiesform") {
                                 <div class="form-group">
                                     <div class="col-lg-8">
-                                        <input type="text" class="form-control" name="parameters[]" value="@app.objectiveParameters.headOption.map(_.parameter)">
+                                        <input type="text" class="form-control" name="parameters[]" value="@app.capacityParameters.headOption.map(_.parameter)">
                                     </div>
                                     <div class="col-lg-4">
                                         <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
@@ -201,31 +201,31 @@
                             Routing Objective Function
                         </div>
                         <div class="panel-body">
-                            <form role="form">
-                                <div class="col-sm-4">
+                            @helper.form(routes.ApplicationController.setObjectiveFunction) {
+                                <div class="col-sm-3">
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="functionsradios" value="MIN_DIST">Minimize Distance
+                                            <input type="radio" name="functionsradios" value="MIN_DIST" @{if (app.objectiveFunction.id.equals(ObjectiveFunction.MIN_DIST)) "checked"}>Minimize Distance
                                         </label>
                                     </div>
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="functionsradios" value="MIN_TIME">Minimize Time
+                                            <input type="radio" name="functionsradios" value="MIN_TIME" @{if (app.objectiveFunction.id.equals(ObjectiveFunction.MIN_TIME)) "checked"}>Minimize Time
                                         </label>
                                     </div>
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="functionsradios" value="CUSTOM">Custom
+                                            <input type="radio" name="functionsradios" value="CUSTOM" @{if (!app.objectiveFunction.id.equals(ObjectiveFunction.MIN_DIST) && !app.objectiveFunction.id.equals(ObjectiveFunction.MIN_TIME)) "checked"}>Custom
                                         </label>
                                     </div>
+                                    <button type="submit" class="btn btn-default">Save Objective Function</button>
                                 </div>
-                                <div class="col-sm-8">
+                                <div class="col-sm-9">
                                     <div class="form-group">
-                                        <textarea class="form-control codeform" rows="5">@app.objectiveFunction.function</textarea>
+                                        <textarea id="objectivefunctioncode" name="function" class="form-control codeform" rows="5" @{if (app.objectiveFunction.id.equals(ObjectiveFunction.MIN_DIST) || app.objectiveFunction.id.equals(ObjectiveFunction.MIN_TIME)) "disabled"}>@app.objectiveFunction.function</textarea>
                                     </div>
-
                                 </div>
-                            </form>
+                            }
                         </div>
                     </div>
                 </div>
@@ -250,7 +250,6 @@
     <script src="../dist/js/sb-admin-2.js"></script>
 
     <script>
-        console.log("UH");
         $(document).ready(function() {
             $("#capacitiesform").on('click', '.addButton', function() {
                 var template = $('#capacityTemplate');
@@ -264,7 +263,21 @@
             }).on('click', '.removeButton', function() {
                 $(this).parents('.form-group').remove();
             });
-
+            custom = "@app.objectiveFunction.function";
+            $("input[name=functionsradios]").change(function() {
+                $("#objectivefunctioncode").prop("disabled", true);
+                if (this.value == "CUSTOM") {
+                    $("#objectivefunctioncode").prop("disabled", false);
+                    $("#objectivefunctioncode").val(custom);
+                } else if (this.value == "@ObjectiveFunction.MIN_DIST") {
+                    $("#objectivefunctioncode").val("@ObjectiveFunction.find.byId(ObjectiveFunction.MIN_DIST).function");
+                } else if (this.value == "@ObjectiveFunction.MIN_TIME") {
+                    $("#objectivefunctioncode").val("@ObjectiveFunction.find.byId(ObjectiveFunction.MIN_TIME).function");
+                }
+            });
+            $("#objectivefunctioncode").on('input', function(e) {
+                custom = e.target.value;
+            });
         });
     </script>
 
