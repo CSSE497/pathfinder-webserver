@@ -57,7 +57,7 @@ public class CustomerController extends Controller {
     }
 
     @Security.Authenticated(SignedIn.class) public Result profile() {
-        List<Application> apps = Application.find.where().eq("email", session("email")).findList();
+        List<Application> apps = Customer.find.byId(session("email")).applications;
         return ok(profile.render(apps));
     }
 
@@ -68,7 +68,7 @@ public class CustomerController extends Controller {
 
         public String validate() {
             Customer customer = Customer.find.byId(email);
-            if (customer == null || !customer.getPassword().equals(password)) {
+            if (customer == null || !customer.password.equals(password)) {
                 return INVALID_ERR;
             }
             return null;

@@ -4,6 +4,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,6 +12,10 @@ import javax.inject.Inject;
 
 import auth.SignedIn;
 import models.Application;
+import models.CapacityParameter;
+import models.Customer;
+import models.ObjectiveFunction;
+import models.ObjectiveParameter;
 import play.Logger;
 import play.data.Form;
 import play.libs.ws.WSClient;
@@ -19,6 +24,9 @@ import play.mvc.Result;
 import play.mvc.Security;
 import views.html.application;
 
+import static java.util.stream.Collectors.toList;
+import static play.data.Form.form;
+
 public class ApplicationController extends Controller {
     private static final Config CONFIG = ConfigFactory.load();
 
@@ -26,33 +34,34 @@ public class ApplicationController extends Controller {
 
     @Security.Authenticated(SignedIn.class) public Result application(UUID id) {
         Logger.info(String.format("Serving application %s", id));
-        Application app =
-            Application.find.where().idEq(id).eq("email", session("email")).findUnique();
-        List<Application> apps = Application.find.where().eq("email", session("email")).findList();
+        Application app = Application.find.byId(id);
+        List<Application> apps = Customer.find.byId(session("email")).applications;
         session().put("app", id.toString());
-        return ok(application.render(app, apps, Form.form(Parameters.class), Form.form(Parameters.class)));
+        app.objectiveFunction.refresh();
+        return ok(application.render(app, apps, form(Parameters.class), form(Parameters.class)));
     }
 
     @Security.Authenticated(SignedIn.class) public Result create() {
         Logger.info("Creating application");
-        Form<Create> form = Form.form(Create.class).bindFromRequest();
+        Form<Create> form = form(Create.class).bindFromRequest();
         if (form.hasErrors()) {
             Logger.info(String.format("Application creation failed: %s", form.errors()));
             return badRequest();
         } else {
             Application app = new Application();
             app.name = form.get().name;
-            app.email = session("email");
+            app.customer = Customer.find.byId(session("email"));
             app.id = UUID.randomUUID();
             app.clusterId = createDefaultCluster();
+            app.objectiveFunction = ObjectiveFunction.find.byId(ObjectiveFunction.MIN_DIST);
             app.save();
-            Logger.info(String.format("%s created application %s", app.email, app.name));
+            Logger.info(String.format("%s created application %s", app.customer.email, app.name));
             return redirect(routes.DashboardController.dashboard());
         }
     }
 
     @Security.Authenticated(SignedIn.class) public Result setCapacities() {
-        Form<Parameters> form = Form.form(Parameters.class).bindFromRequest();
+        Form<Parameters> form = form(Parameters.class).bindFromRequest();
         if (form.hasErrors()) {
             Logger.warn(String.format("Setting capacities failed: %s", form.errors()));
             return badRequest("Something went wrong");
@@ -60,13 +69,28 @@ public class ApplicationController extends Controller {
             System.out.println(form.get().parameters);
             List<String> parameters = form.get().parameters;
             parameters.removeAll(Arrays.asList("", null));
-            Logger.info(String.format("Setting capacities: %s", form.get().parameters));
-            return redirect(routes.ApplicationController.application(UUID.fromString(session("app"))));
+            Application app = Application.find.byId(UUID.fromString(session("app")));
+            Logger.info(String.format("Setting capacities for %s: %s", app.id, parameters));
+            app.refresh();
+            app.capacityParameters.forEach(p -> {
+                p.delete();
+            });
+            Collections.reverse(parameters);
+            for (String parameterName : parameters) {
+                CapacityParameter parameter = new CapacityParameter();
+                parameter.application = app;
+                parameter.parameter = parameterName;
+                parameter.save();
+            }
+            app.refresh();
+            Logger.info(String.format("Capacities for %s: %s", app.id,
+                app.capacityParameters.stream().map(x -> x.parameter).collect(toList())));
+            return redirect(routes.ApplicationController.application(app.id));
         }
     }
 
     @Security.Authenticated(SignedIn.class) public Result setObjectives() {
-        Form<Parameters> form = Form.form(Parameters.class).bindFromRequest();
+        Form<Parameters> form = form(Parameters.class).bindFromRequest();
         if (form.hasErrors()) {
             Logger.warn(String.format("Setting objectives failed: %s", form.errors()));
             return badRequest("Something went wrong");
@@ -74,8 +98,20 @@ public class ApplicationController extends Controller {
             System.out.println(form.get().parameters);
             List<String> parameters = form.get().parameters;
             parameters.removeAll(Arrays.asList("", null));
-            Logger.info(String.format("Setting objectives: %s", form.get().parameters));
-            return redirect(routes.ApplicationController.application(UUID.fromString(session("app"))));
+            Application app = Application.find.byId(UUID.fromString(session("app")));
+            Logger.info(String.format("Setting objectives for %s: %s", app.id, parameters));
+            app.objectiveParameters.forEach(p -> p.delete());
+            Collections.reverse(parameters);
+            for (String parameterName : parameters) {
+                ObjectiveParameter parameter = new ObjectiveParameter();
+                parameter.application = app;
+                parameter.parameter = parameterName;
+                parameter.save();
+            }
+            app.refresh();
+            Logger.info(String.format("Objectives for %s: %s", app.id,
+                app.objectiveParameters.stream().map(x -> x.parameter).collect(toList())));
+            return redirect(routes.ApplicationController.application(app.id));
         }
     }
 
