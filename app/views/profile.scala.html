@@ -1,4 +1,4 @@
-@(apps: List[Application], form: Form[ApplicationController.Create])
+@(apps: List[Application])
 
 <!DOCTYPE html>
 <html lang="en">
@@ -100,55 +100,12 @@
         <div id="page-wrapper">
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header">Dashboard</h1>
+                    <h1 class="page-header">User Profile</h1>
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
             <!-- /.row -->
             <div class="row">
-                <div class="col-lg-4">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4>Create New</h4>
-                        </div>
-                        <div class="panel-body">
-                            @helper.form(routes.ApplicationController.create) {
-                                <fieldset>
-                                    <div class="form-group">
-                                        <input class="form-control" placeholder="Name" name="name" type="string">
-                                    </div>
-                                    <button type="submit" class="btn btn-lg btn-success btn-block">Create</button>
-                                </fieldset>
-                            }
-                        </div>
-                    </div>
-                </div>
-                @apps.map { app =>
-                    <div class="col-lg-4">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4>@app.name</h4>
-                            </div>
-                            <div class="panel-body" style="min-height: 84px;">
-                                <form class="form-horizontal">
-                                    <div class="form-group">
-                                        <label class="col-sm-3 control-label">Identifier</label>
-                                        <div class="col-sm-9">
-                                            <input class="form-control" value="@app.id" onClick="this.select();" readonly>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <a href="@routes.ApplicationController.application(app.id)">
-                                <div class="panel-footer">
-                                    <span class="pull-left">Manage application</span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                }
             </div>
             <!-- /.row -->
         </div>

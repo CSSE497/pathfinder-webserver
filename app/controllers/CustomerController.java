@@ -1,12 +1,18 @@
 package controllers;
 
+import java.util.List;
+
+import auth.SignedIn;
+import models.Application;
 import models.Customer;
 import play.Logger;
 import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.Security;
 import views.html.index;
 import views.html.login;
+import views.html.profile;
 
 public class CustomerController extends Controller {
 
@@ -36,7 +42,7 @@ public class CustomerController extends Controller {
     public Result register() {
         Form<Register> form = Form.form(Register.class).bindFromRequest();
         if (form.hasErrors()) {
-            Logger.info(String.format("Register failed %s: %s", form.get().email, form.errors()));
+            Logger.info(String.format("Register failed: %s", form.errors()));
             return badRequest(index.render(form));
         } else {
             Customer newCustomer = new Customer();
@@ -46,8 +52,13 @@ public class CustomerController extends Controller {
             session().clear();
             session("email", form.get().email);
             Logger.info(String.format("Registered %s", form.get().email));
-            return ok();
+            return redirect(routes.DashboardController.dashboard());
         }
+    }
+
+    @Security.Authenticated(SignedIn.class) public Result profile() {
+        List<Application> apps = Application.find.where().eq("email", session("email")).findList();
+        return ok(profile.render(apps));
     }
 
     public static class Login {

@@ -5,11 +5,14 @@ GET         /login                    controllers.CustomerController.login()
 GET         /logout                   controllers.CustomerController.logout()
 POST        /authenticate             controllers.CustomerController.authenticate()
 
-POST        /createapplication        controllers.ApplicationController.createApplication()
-GET         /getapplications          controllers.ApplicationController.getApplications()
-
 GET         /dashboard                controllers.DashboardController.dashboard()
+GET         /profile                  controllers.CustomerController.profile()
+GET         /billing                  controllers.BillingController.billing()
 
+GET         /application/:id          controllers.ApplicationController.application(id: java.util.UUID)
+POST        /createapplication        controllers.ApplicationController.create()
+GET         /setcapacities            controllers.ApplicationController.setCapacities()
+GET         /setobjectives            controllers.ApplicationController.setObjectives()
 
 GET         /bower_components/*file   controllers.Assets.at(path="/public/website/bower_components", file)
 GET         /dist/*file               controllers.Assets.at(path="/public/website/dist", file)
