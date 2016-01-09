@@ -14,8 +14,8 @@ import javax.validation.constraints.NotNull;
 
 @Entity public class ObjectiveParameter extends Model {
 
-    public static final Find<String, ObjectiveParameter> find =
-        new Find<String, ObjectiveParameter>() {
+    public static final Model.Find<String, ObjectiveParameter> find =
+        new Model.Find<String, ObjectiveParameter>() {
         };
 
     @Id @NotNull @GeneratedValue(strategy = GenerationType.IDENTITY) public long id;

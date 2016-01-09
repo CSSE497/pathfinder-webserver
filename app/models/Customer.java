@@ -17,7 +17,7 @@ import javax.validation.constraints.Size;
 @Entity public class Customer extends Model {
 
     public static final int PASSWORD_MIN_LENGTH = 6;
-    public static final Find<String, Customer> find = new Find<String, Customer>() {
+    public static final Model.Find<String, Customer> find = new Model.Find<String, Customer>() {
     };
 
     @Id @NotNull public String email;

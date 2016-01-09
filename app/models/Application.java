@@ -17,8 +17,9 @@ import javax.validation.constraints.NotNull;
 
     public static final int REQUIRED_CREATE_FIELDS = 1;
     public static final int TOKEN_LENGTH = 255;
-    public static final Find<String, Application> find = new Find<String, Application>() {
-    };
+    public static final Model.Find<String, Application> find =
+        new Model.Find<String, Application>() {
+        };
 
     @Id @NotNull(message = "Id cannot be null") public String id;
 

@@ -14,8 +14,8 @@ import javax.validation.constraints.NotNull;
 
 @Entity public class CapacityParameter extends Model {
 
-    public static final Find<String, CapacityParameter> find =
-        new Find<String, CapacityParameter>() {
+    public static final Model.Find<String, CapacityParameter> find =
+        new Model.Find<String, CapacityParameter>() {
         };
 
     @Id @NotNull @GeneratedValue(strategy = GenerationType.IDENTITY) public long id;
