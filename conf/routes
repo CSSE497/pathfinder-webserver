@@ -21,4 +21,3 @@ GET         /js/*file                 controllers.Assets.at(path="/public/websit
 GET         /css/*file                controllers.Assets.at(path="/public/website/css", file)
 GET         /img/*file                controllers.Assets.at(path="/public/website/img", file)
 GET         /less/*file               controllers.Assets.at(path="/public/website/less", file)
-GET         /*file                    controllers.Assets.at(path="/public/website/pages", file)
