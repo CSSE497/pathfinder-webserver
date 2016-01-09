@@ -1,3 +1,5 @@
+@(form: Form[CustomerController.Register])
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -57,7 +59,7 @@
                         <a href="blog.html">Blog</a>
                     </li>
                     <li>
-                        <a href="login.html">Sign In</a>
+                        <a href="login">Sign In</a>
                     </li>
                 </ul>
             </div>
@@ -142,10 +144,10 @@
           <div class="col-lg-5 col-lg-offset-2 col-sm-6">
             <div class="login-panel panel panel-default">
               <div class="panel-body">
-                <form role="form" action="registeruser" method="post">
+                @helper.form(routes.CustomerController.register) {
                   <fieldset>
                     <div class="form-group">
-                      <input class="form-control" placeholder="Email" name="email" type="email">
+                      <input class="form-control" placeholder="Email" name="email" type="email" value="@form("email").value">
                     </div>
                     <div class="form-group">
                       <input class="form-control" placeholder="Password" name="password" type="password" value="">
@@ -155,7 +157,7 @@
                     </div>
                     <button type="submit" class="btn btn-lg btn-success btn-block">Register</button>
                   </fieldset>
-                </form>
+                }
               </div>
             </div>
           </div>

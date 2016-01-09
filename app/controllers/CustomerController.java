@@ -1,123 +1,84 @@
 package controllers;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import java.util.List;
-import java.util.Map;
-
-import annotations.interfaces.RequireJson;
 import models.Customer;
-import play.data.Form;
-import play.libs.Json;
 import play.Logger;
+import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
+import views.html.index;
+import views.html.login;
 
 public class CustomerController extends Controller {
-    private static final String PASSWORD = "password";
-    private static final String EMAIL = "email";
-
-    public static class Login {
-        public String email;
-        public String password;
-    }
 
     public Result login() {
         return ok(views.html.login.render(Form.form(Login.class)));
     }
 
+    public Result logout() {
+        session().clear();
+        flash("success", "You've been logged out");
+        return (redirect(routes.IndexController.index()));
+    }
+
     public Result authenticate() {
-        Form<Login> loginForm = Form.form(Login.class).bindFromRequest();
-        return ok();
+        Form<Login> form = Form.form(Login.class).bindFromRequest();
+        if (form.hasErrors()) {
+            Logger.info(String.format("User failed to log in: %s", form.errors()));
+            return badRequest(login.render(form));
+        } else {
+            session().clear();
+            session("email", form.get().email);
+            Logger.info(String.format("User %s successfully logged in", form.get().email));
+            return redirect(routes.DashboardController.dashboard());
+        }
     }
 
     public Result register() {
-        Logger.info(String.format("Received createUser request: %s", request().body()));
-        Map<String,String[]> fields = request().body().asFormUrlEncoded();
-        Customer newUser = new Customer();
-        newUser.username = fields.get(EMAIL)[0];
-        newUser.password = fields.get(PASSWORD)[0];
-        newUser.save();
-        return created();
-    }
-
-    @RequireJson() public Result getUser() {
-        JsonNode jsonNode = request().body().asJson();
-
-        Customer user = getValidUser(jsonNode);
-
-        if (user != null) {
-            return ok(Json.toJson(user));
+        Form<Register> form = Form.form(Register.class).bindFromRequest();
+        if (form.hasErrors()) {
+            Logger.info(String.format("Register failed %s: %s", form.get().email, form.errors()));
+            return badRequest(index.render(form));
+        } else {
+            Customer newCustomer = new Customer();
+            newCustomer.email = form.get().email;
+            newCustomer.password = form.get().password;
+            newCustomer.save();
+            session().clear();
+            session("email", form.get().email);
+            Logger.info(String.format("Registered %s", form.get().email));
+            return ok();
         }
-
-        return badRequest("Invalid user");
     }
 
-    @RequireJson() public Result getUserToken() {
-        JsonNode jsonNode = request().body().asJson();
+    public static class Login {
+        private static final String INVALID_ERR = "Invalid email or password";
+        public String email;
+        public String password;
 
-        Customer user = getValidUser(jsonNode);
-
-        if (user != null) {
-            return ok(Json.toJson(user.userToken));
-        }
-
-        return badRequest("Invalid user");
-    }
-
-    private Customer getValidUser(JsonNode jsonNode) {
-        String username = jsonNode.get("username").textValue();
-        Customer user = Customer.find.byId(username);
-
-        if (user == null) {
+        public String validate() {
+            Customer customer = Customer.find.byId(email);
+            if (customer == null || !customer.getPassword().equals(password)) {
+                return INVALID_ERR;
+            }
             return null;
         }
-
-        String password = jsonNode.get("password").textValue();
-        if (password.equals(user.password)) {
-            return user;
-        }
-
-        return null;
     }
 
-    // Will be removed later
-    public Result getUsers() {
-        List<Customer> usernames = Customer.find.all();
-        return ok(Json.toJson(usernames));
-    }
 
-    private Result validateNewUser(JsonNode jsonNode) {
-        if (!jsonNode.isObject()) {
-            return badRequest("Json not an object");
+    public static class Register {
+        private static final String MISMATCH_ERR = "Password does not match";
+        private static final String DUPLICATE_ERR = "This email address is already registered";
+        public String email;
+        public String password;
+        public String confirm;
+
+        public String validate() {
+            if (Customer.find.byId(email) != null) {
+                return DUPLICATE_ERR;
+            } else if (!password.equals(confirm)) {
+                return MISMATCH_ERR;
+            }
+            return null;
         }
-
-        ObjectNode json = (ObjectNode) jsonNode;
-
-        if (json.size() != Customer.REQUIRED_CREATE_FIELDS) {
-            return badRequest("Wrong number of fields to create a user");
-        }
-
-        if (!json.has("username") || !json.get("username").isTextual()) {
-            return badRequest("Username was not provided");
-        }
-
-        if (!json.has("password") || !json.get("password").isTextual()) {
-            return badRequest("Password was not provided.");
-        }
-
-        if (!json.has("confirmPassword") || !json.get("confirmPassword").isTextual()) {
-            return badRequest("Confirm password was not provided");
-        }
-
-        String password = json.get("password").textValue();
-        String confirmPassword = json.get("confirmPassword").textValue();
-
-        if (!password.equals(confirmPassword)) {
-            return badRequest("Passwords do not match");
-        }
-
-        return ok();
     }
 }

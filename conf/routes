@@ -1,13 +1,16 @@
-POST        /register                 controllers.CustomerController.register()
+GET         /                         controllers.IndexController.index()
+
+GET         /register                 controllers.CustomerController.register()
 GET         /login                    controllers.CustomerController.login()
+GET         /logout                   controllers.CustomerController.logout()
 POST        /authenticate             controllers.CustomerController.authenticate()
-POST        /getuser                  controllers.CustomerController.getUser()
-POST        /getusertoken             controllers.CustomerController.getUserToken()
-GET         /getusers                 controllers.CustomerController.getUsers()
+
 POST        /createapplication        controllers.ApplicationController.createApplication()
 GET         /getapplications          controllers.ApplicationController.getApplications()
 
-GET         /                         controllers.Assets.at(path="/public/website/pages", file="index.html")
+GET         /dashboard                controllers.DashboardController.dashboard()
+
+
 GET         /bower_components/*file   controllers.Assets.at(path="/public/website/bower_components", file)
 GET         /dist/*file               controllers.Assets.at(path="/public/website/dist", file)
 GET         /js/*file                 controllers.Assets.at(path="/public/website/js", file)

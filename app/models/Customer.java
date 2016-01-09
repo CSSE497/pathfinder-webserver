@@ -16,11 +16,10 @@ import javax.validation.constraints.Size;
     public static final int REQUIRED_CREATE_FIELDS = 3;
     public static Find<String, Customer> find = new Find<String, Customer>() {
     };
-    @Id @NotNull(message = "Username was not provided") public String username;
+    @Id @NotNull(message = "Email was not provided") public String email;
     @JsonIgnore @NotNull(message = "Password was not provided")
     @Size(min = PASSWORD_MIN_LENGTH, message = "Password was too short, it must be at least "
         + PASSWORD_MIN_LENGTH + " characters") public String password;
-    @NotNull(message = "Token was not provided") public byte[] userToken;
 
     @JsonIgnore public String getPassword() {
         return password;
