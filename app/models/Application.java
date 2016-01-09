@@ -1,4 +1,4 @@
-package io.pathfinder.models;
+package models;
 
 import com.avaje.ebean.Model;
 
@@ -10,12 +10,12 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-@Entity public class PathfinderApplication extends Model {
+@Entity public class Application extends Model {
 
     public static final int NAME_MIN_LENGTH = 1;
     public static final int REQUIRED_CREATE_FIELDS = 1;
     public static final int TOKEN_LENGTH = 255;
-    public static Find<UUID, PathfinderApplication> find = new Find<UUID, PathfinderApplication>() {
+    public static Find<UUID, Application> find = new Find<UUID, Application>() {
     };
     @Id @NotNull(message = "Id cannot be null") public UUID id;
     @NotNull(message = "Application token not present") public byte[] token;

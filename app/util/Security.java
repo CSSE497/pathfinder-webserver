@@ -1,4 +1,4 @@
-package io.pathfinder.util;
+package util;
 
 import java.security.SecureRandom;
 

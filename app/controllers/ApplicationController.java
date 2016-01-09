@@ -1,4 +1,4 @@
-package io.pathfinder.controllers;
+package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.Config;
@@ -13,9 +13,9 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-import io.pathfinder.annotations.interfaces.RequireJson;
-import io.pathfinder.models.PathfinderApplication;
-import io.pathfinder.util.Security;
+import annotations.interfaces.RequireJson;
+import models.Application;
+import util.Security;
 import play.libs.F.Function;
 import play.libs.F.Promise;
 import play.libs.Json;
@@ -26,7 +26,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 
-public class PathfinderApplicationController extends Controller {
+public class ApplicationController extends Controller {
 
     Config config = ConfigFactory.load();
 
@@ -39,12 +39,12 @@ public class PathfinderApplicationController extends Controller {
         }
 
         int size = jsonNode.size();
-        if (size > PathfinderApplication.REQUIRED_CREATE_FIELDS) {
+        if (size > Application.REQUIRED_CREATE_FIELDS) {
             return Promise.pure(
                 badRequest("Too many fields were detected in the application create request"));
         }
 
-        if (size < PathfinderApplication.REQUIRED_CREATE_FIELDS) {
+        if (size < Application.REQUIRED_CREATE_FIELDS) {
             return Promise
                 .pure(badRequest("Too few fields were detected in the application create request"));
         }
@@ -53,7 +53,7 @@ public class PathfinderApplicationController extends Controller {
             return Promise.pure(badRequest("Json did not include a name field"));
         }
 
-        PathfinderApplication application = Json.fromJson(jsonNode, PathfinderApplication.class);
+        Application application = Json.fromJson(jsonNode, Application.class);
 
         String pathfinderServerURL = config.getString("pathfinder.server.url");
         WSRequest clusterCreateRequest = ws.url(pathfinderServerURL + "/cluster");
@@ -64,15 +64,15 @@ public class PathfinderApplicationController extends Controller {
     }
 
     public Result getApplications() {
-        return ok(Json.toJson(PathfinderApplication.find.all()));
+        return ok(Json.toJson(Application.find.all()));
     }
 
 
     private class CreateApplicationResponse implements Function<WSResponse, Result> {
 
-        private PathfinderApplication application;
+        private Application application;
 
-        public CreateApplicationResponse(PathfinderApplication application) {
+        public CreateApplicationResponse(Application application) {
             this.application = application;
         }
 
@@ -82,15 +82,15 @@ public class PathfinderApplicationController extends Controller {
             }
 
             application.clusterId = response.asJson().findValue("id").longValue();
-            application.token = Security.generateToken(PathfinderApplication.TOKEN_LENGTH);
+            application.token = Security.generateToken(Application.TOKEN_LENGTH);
 
             do {
                 application.id = UUID.randomUUID();
-            } while (PathfinderApplication.find.byId(application.id) != null);
+            } while (Application.find.byId(application.id) != null);
 
             ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
             Validator validator = validatorFactory.getValidator();
-            Set<ConstraintViolation<PathfinderApplication>> violations =
+            Set<ConstraintViolation<Application>> violations =
                 validator.validate(application);
 
             if (violations.size() == 0) {
@@ -103,7 +103,7 @@ public class PathfinderApplicationController extends Controller {
                 clusterDeleteRequest.delete();
 
                 String violationString = "";
-                for (ConstraintViolation<PathfinderApplication> violation : violations) {
+                for (ConstraintViolation<Application> violation : violations) {
                     violationString += violation.getMessage() + "\n";
                 }
                 return badRequest(Json.toJson(violationString));

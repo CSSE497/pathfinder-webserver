@@ -1,6 +1,6 @@
-package io.pathfinder.annotations.implementations;
+package annotations.implementations;
 
-import io.pathfinder.annotations.interfaces.RequireJson;
+import annotations.interfaces.RequireJson;
 import play.libs.F.Promise;
 import play.mvc.Action;
 import play.mvc.Http;
