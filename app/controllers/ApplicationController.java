@@ -74,7 +74,6 @@ public class ApplicationController extends Controller {
             Logger.warn(String.format("Setting capacities failed: %s", form.errors()));
             return badRequest("Something went wrong");
         } else {
-            System.out.println(form.get().parameters);
             List<String> parameters = form.get().parameters;
             parameters.removeAll(Arrays.asList("", null));
             Application app = Application.find.byId(session("app"));
@@ -103,7 +102,6 @@ public class ApplicationController extends Controller {
             Logger.warn(String.format("Setting objectives failed: %s", form.errors()));
             return badRequest("Something went wrong");
         } else {
-            System.out.println(form.get().parameters);
             List<String> parameters = form.get().parameters;
             parameters.removeAll(Arrays.asList("", null));
             Application app = Application.find.byId(session("app"));
@@ -153,9 +151,6 @@ public class ApplicationController extends Controller {
         JsonNode message = Json.newObject();
         return clusterCreateRequest.post(message).map(new F.Function<WSResponse, Integer>() {
             @Override public Integer apply(WSResponse response) {
-                System.out.println("FUUUCK");
-                System.out.println(response);
-                System.out.println(response.getBody());
                 JsonNode json = Json.parse(response.getBody());
                 return json.get("id").asInt();
             }
