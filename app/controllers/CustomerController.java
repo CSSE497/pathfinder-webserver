@@ -6,6 +6,7 @@ import auth.SignedIn;
 import models.Application;
 import models.Customer;
 import play.Logger;
+import play.data.DynamicForm;
 import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -17,7 +18,7 @@ import views.html.profile;
 public class CustomerController extends Controller {
 
     public Result login() {
-        return ok(views.html.login.render(Form.form(Login.class)));
+        return ok(views.html.login.render(Form.form()));
     }
 
     public Result logout() {
@@ -27,31 +28,43 @@ public class CustomerController extends Controller {
     }
 
     public Result authenticate() {
-        Form<Login> form = Form.form(Login.class).bindFromRequest();
-        if (form.hasErrors()) {
-            Logger.info(String.format("User failed to log in: %s", form.errors()));
-            return badRequest(login.render(form));
+        DynamicForm requestData = Form.form().bindFromRequest();
+        Logger.warn(requestData.get("email"));
+        Logger.warn(requestData.get("password"));
+        Logger.warn(requestData.get("butts"));
+        String email = requestData.get("email");
+        String password = requestData.get("password");
+        Login login = new Login(email, password);
+        String error = login.validate();
+        if (error != null) {
+            Logger.info(String.format("User failed to log in: %s", error));
+            return redirect(routes.CustomerController.login());
         } else {
             session().clear();
-            session("email", form.get().email);
-            Logger.info(String.format("User %s successfully logged in", form.get().email));
+            session("email", email);
+            Logger.info(String.format("User %s successfully logged in", email));
             return redirect(routes.DashboardController.dashboard());
         }
     }
 
     public Result register() {
-        Form<Register> form = Form.form(Register.class).bindFromRequest();
-        if (form.hasErrors()) {
-            Logger.info(String.format("Register failed: %s", form.errors()));
-            return badRequest(index.render(form));
+        DynamicForm requestData = Form.form().bindFromRequest();
+        String email = requestData.get("email");
+        String password = requestData.get("password");
+        String confirm = requestData.get("confirm");
+        Register register = new Register(email, password, confirm);
+        String error = register.validate();
+        if (error != null) {
+            Logger.info(String.format("Register failed: %s", error));
+            return badRequest(index.render(requestData));
         } else {
             Customer newCustomer = new Customer();
-            newCustomer.email = form.get().email;
-            newCustomer.password = form.get().password;
+            newCustomer.email = email;
+            newCustomer.password = password;
             newCustomer.save();
             session().clear();
-            session("email", form.get().email);
-            Logger.info(String.format("Registered %s", form.get().email));
+            session("email", email);
+            Logger.info(String.format("Registered %s", email));
             return redirect(routes.DashboardController.dashboard());
         }
     }
@@ -63,10 +76,16 @@ public class CustomerController extends Controller {
 
     public static class Login {
         private static final String INVALID_ERR = "Invalid email or password";
-        public String email;
-        public String password;
+        public final String email;
+        public final String password;
+
+        public Login(String email, String password) {
+            this.email = email;
+            this.password = password;
+        }
 
         public String validate() {
+            Logger.info(String.format("Validating login form: %s %s", email, password));
             Customer customer = Customer.find.byId(email);
             if (customer == null || !customer.password.equals(password)) {
                 return INVALID_ERR;
@@ -79,9 +98,15 @@ public class CustomerController extends Controller {
     public static class Register {
         private static final String MISMATCH_ERR = "Password does not match";
         private static final String DUPLICATE_ERR = "This email address is already registered";
-        public String email;
-        public String password;
-        public String confirm;
+        public final String email;
+        public final String password;
+        public final String confirm;
+
+        public Register(String email, String password, String confirm) {
+            this.email = email;
+            this.password = password;
+            this.confirm = confirm;
+        }
 
         public String validate() {
             if (Customer.find.byId(email) != null) {

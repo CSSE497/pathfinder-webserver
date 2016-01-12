@@ -1,6 +1,6 @@
 GET         /                         controllers.IndexController.index()
 
-GET         /register                 controllers.CustomerController.register()
+POST        /register                 controllers.CustomerController.register()
 GET         /login                    controllers.CustomerController.login()
 GET         /logout                   controllers.CustomerController.logout()
 POST        /authenticate             controllers.CustomerController.authenticate()
@@ -11,9 +11,9 @@ GET         /billing                  controllers.BillingController.billing()
 
 GET         /application/:id          controllers.ApplicationController.application(id)
 POST        /createapplication        controllers.ApplicationController.create()
-GET         /setcapacities            controllers.ApplicationController.setCapacities()
-GET         /setobjectives            controllers.ApplicationController.setObjectives()
-GET         /setobjectivefunction     controllers.ApplicationController.setObjectiveFunction()
+POST        /setcapacities            controllers.ApplicationController.setCapacities()
+POST        /setobjectives            controllers.ApplicationController.setObjectives()
+POST        /setobjectivefunction     controllers.ApplicationController.setObjectiveFunction()
 
 GET         /bower_components/*file   controllers.Assets.at(path="/public/website/bower_components", file)
 GET         /dist/*file               controllers.Assets.at(path="/public/website/dist", file)

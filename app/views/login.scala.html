@@ -1,4 +1,4 @@
-@(form: Form[CustomerController.Login])
+@(form: DynamicForm)
 
 <!DOCTYPE html>
 <html lang="en">
@@ -40,10 +40,10 @@
                         @helper.form(routes.CustomerController.authenticate) {
                             <fieldset>
                                 <div class="form-group">
-                                    <input class="form-control" placeholder="E-mail" name="email" type="email" autofocus value="@form("email").value">
+                                    <input class="form-control" placeholder="E-mail" id="email" name="email" type="email" autofocus value="@form("email").value">
                                 </div>
                                 <div class="form-group">
-                                    <input class="form-control" placeholder="Password" name="password" type="password" value="">
+                                    <input class="form-control" placeholder="Password" id="password" name="password" type="password" value="">
                                 </div>
                                 <div class="checkbox">
                                     <label>
