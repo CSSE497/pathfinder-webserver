@@ -1,0 +1,286 @@
+@(app: Application, apps: List[Application], capacityForm: DynamicForm, objectivesForm: DynamicForm, objectiveFunctionForm: DynamicForm)
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>The Pathfinder</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="../bower_components/metisMenu/dist/metisMenu.min.css" rel="stylesheet">
+
+    <!-- Timeline CSS -->
+    <link href="../dist/css/timeline.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../dist/css/sb-admin-2.css" rel="stylesheet">
+
+    <!-- Morris Charts CSS -->
+    <link href="../bower_components/morrisjs/morris.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="../bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <link href="/css/thepathfinder.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="@routes.IndexController.index()">The Pathfinder</a>
+            </div>
+            <!-- /.navbar-header -->
+
+            <ul class="nav navbar-top-links navbar-right">
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li><a href="@routes.CustomerController.profile()"><i class="fa fa-user fa-fw"></i> User Profile</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li><a href="@routes.CustomerController.logout()"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                        </li>
+                    </ul>
+                    <!-- /.dropdown-user -->
+                </li>
+                <!-- /.dropdown -->
+            </ul>
+            <!-- /.navbar-top-links -->
+
+            <div class="navbar-default sidebar" role="navigation">
+                <div class="sidebar-nav navbar-collapse">
+                    <ul class="nav" id="side-menu">
+                        <li>
+                            <a href="@routes.DashboardController.dashboard()"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+                        </li>
+                        <li>
+                            <a href="@routes.BillingController.billing()"><i class="fa fa-money fa-fw"></i> Billing</a>
+                        </li>
+                        <li>
+                            <a href="@routes.CustomerController.profile()"><i class="fa fa-user fa-fw"></i> User Profile</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-laptop fa-fw"></i> Your Applications<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                @apps.map { app =>
+                                    <li>
+                                        <a href="@routes.ApplicationController.application(app.id)">@app.name</a>
+                                    </li>
+                                }
+                            </ul>
+                            <!-- /.nav-second-level -->
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.sidebar-collapse -->
+            </div>
+            <!-- /.navbar-static-side -->
+        </nav>
+
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">@app.name</h1>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Routing Capacity Parameters
+                        </div>
+                        <div class="panel-body">
+                            @helper.form(routes.ApplicationController.setCapacities(), 'id -> "capacitiesform") {
+                                <div class="form-group">
+                                    <div class="col-lg-8">
+                                        <input type="text" class="form-control" name="parameters[]" value="@app.capacityParameters.headOption.map(_.parameter)">
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                @app.capacityParameters.drop(1).map { param =>
+                                    <div class="form-group">
+                                        <div class="col-lg-8">
+                                            <input type="text" class="form-control" name="parameters[]" value="@param.parameter">
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
+                                        </div>
+                                    </div>
+                                }
+                                <div class="form-group hide" id="capacityTemplate">
+                                    <div class="col-lg-8">
+                                        <input type="text" class="form-control" name="parameters[]">
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-5">
+                                        <button type="submit" class="btn btn-default">Save Parameters</button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Routing Objective Parameters
+                        </div>
+                        <div class="panel-body">
+                            @helper.form(routes.ApplicationController.setObjectives(), 'id -> "objectivesform") {
+                                <div class="form-group">
+                                    <div class="col-lg-8">
+                                        <input type="text" class="form-control" name="parameters[]" value="@app.objectiveParameters.headOption.map(_.parameter)">
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                @app.objectiveParameters.drop(1).map { param =>
+                                    <div class="form-group">
+                                        <div class="col-lg-8">
+                                            <input type="text" class="form-control" name="parameters[]" value="@param.parameter">
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
+                                        </div>
+                                    </div>
+                                }
+                                <div class="form-group hide" id="objectivesTemplate">
+                                    <div class="col-lg-8">
+                                        <input type="text" class="form-control" name="parameters[]">
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-5">
+                                        <button type="submit" class="btn btn-default">Save Parameters</button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.row -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Routing Objective Function
+                        </div>
+                        <div class="panel-body">
+                            @helper.form(routes.ApplicationController.setObjectiveFunction) {
+                                <div class="col-sm-3">
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="functionsradios" value="MIN_DIST" @{if (app.objectiveFunction.id.equals(ObjectiveFunction.MIN_DIST)) "checked"}>Minimize Distance
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="functionsradios" value="MIN_TIME" @{if (app.objectiveFunction.id.equals(ObjectiveFunction.MIN_TIME)) "checked"}>Minimize Time
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="functionsradios" value="CUSTOM" @{if (!app.objectiveFunction.id.equals(ObjectiveFunction.MIN_DIST) && !app.objectiveFunction.id.equals(ObjectiveFunction.MIN_TIME)) "checked"}>Custom
+                                        </label>
+                                    </div>
+                                    <button type="submit" class="btn btn-default">Save Objective Function</button>
+                                </div>
+                                <div class="col-sm-9">
+                                    <div class="form-group">
+                                        <textarea id="objectivefunctioncode" name="function" class="form-control codeform" rows="5" @{if (app.objectiveFunction.id.equals(ObjectiveFunction.MIN_DIST) || app.objectiveFunction.id.equals(ObjectiveFunction.MIN_TIME)) "disabled"}>@app.objectiveFunction.function</textarea>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /#page-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- jQuery -->
+    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="../bower_components/metisMenu/dist/metisMenu.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../dist/js/sb-admin-2.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $("#capacitiesform").on('click', '.addButton', function() {
+                var template = $('#capacityTemplate');
+                var clone = template.clone().removeClass('hide').removeAttr('id').insertBefore(template);
+            }).on('click', '.removeButton', function() {
+                $(this).parents('.form-group').remove();
+            });
+            $("#objectivesform").on('click', '.addButton', function() {
+                var template = $('#objectivesTemplate');
+                var clone = template.clone().removeClass('hide').removeAttr('id').insertBefore(template);
+            }).on('click', '.removeButton', function() {
+                $(this).parents('.form-group').remove();
+            });
+            custom = "@app.objectiveFunction.function";
+            $("input[name=functionsradios]").change(function() {
+                $("#objectivefunctioncode").prop("disabled", true);
+                if (this.value == "CUSTOM") {
+                    $("#objectivefunctioncode").prop("disabled", false);
+                    $("#objectivefunctioncode").val(custom);
+                } else if (this.value == "@ObjectiveFunction.MIN_DIST") {
+                    $("#objectivefunctioncode").val("@ObjectiveFunction.find.byId(ObjectiveFunction.MIN_DIST).function");
+                } else if (this.value == "@ObjectiveFunction.MIN_TIME") {
+                    $("#objectivefunctioncode").val("@ObjectiveFunction.find.byId(ObjectiveFunction.MIN_TIME).function");
+                }
+            });
+            $("#objectivefunctioncode").on('input', function(e) {
+                custom = e.target.value;
+            });
+        });
+    </script>
+
+</body>
+
+</html>

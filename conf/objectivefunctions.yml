@@ -1,0 +1,7 @@
+- !!models.ObjectiveFunction
+    id:       MIN_DIST
+    function: sum{distances[k1,k2]*x[k1,k2,i],k1=RA,k2=RA,i=VA}
+
+- !!models.ObjectiveFunction
+    id:       MIN_TIME
+    function: sum{durations[k1,k2]*x[k1,k2,i],k1=RA,k2=RA,i=VA}
