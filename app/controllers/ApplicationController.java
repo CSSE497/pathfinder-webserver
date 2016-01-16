@@ -4,6 +4,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.SqlUpdate;
 import com.avaje.ebean.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -59,7 +60,7 @@ public class ApplicationController extends Controller {
         app.name = form.get("name");
         app.customer = Customer.find.byId(session("email"));
         app.id = UUID.randomUUID().toString();
-        app.clusterId = createDefaultCluster().get(10, TimeUnit.SECONDS);
+        createDefaultCluster(app.id).get(30, TimeUnit.SECONDS);
         app.objectiveFunction = ObjectiveFunction.find.byId(ObjectiveFunction.MIN_DIST);
         app.save();
         Logger.info(String.format("%s created application %s", app.customer.email, app.name));
@@ -156,17 +157,14 @@ public class ApplicationController extends Controller {
         return redirect(routes.ApplicationController.application(session("app")));
     }
 
-    private F.Promise<Integer> createDefaultCluster() {
+    private F.Promise<Void> createDefaultCluster(String appId) {
         WSRequest clusterCreateRequest =
             ws.url(CONFIG.getString("pathfinder.server.url") + "/cluster");
-        JsonNode message = Json.newObject();
-        return clusterCreateRequest.post(message).map(new F.Function<WSResponse, Integer>() {
-            @Override public Integer apply(WSResponse response) {
-                System.out.println("FUUUCK");
-                System.out.println(response);
-                System.out.println(response.getBody());
-                JsonNode json = Json.parse(response.getBody());
-                return json.get("id").asInt();
+        ObjectNode message = Json.newObject();
+        message.put("path", appId);
+        return clusterCreateRequest.post(message).map(new F.Function<WSResponse, Void>() {
+            @Override public Void apply(WSResponse response) {
+                return null;
             }
         });
     }

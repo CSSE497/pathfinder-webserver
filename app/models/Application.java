@@ -27,8 +27,6 @@ import javax.validation.constraints.NotNull;
 
     @ManyToOne public Customer customer;
 
-    @NotNull(message = "Cluster id not present") public long clusterId;
-
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL) public List<CapacityParameter>
         capacityParameters;
 
