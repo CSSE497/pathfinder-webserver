@@ -32,6 +32,7 @@
     <link href="../bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
     <link href="/css/thepathfinder.css" rel="stylesheet" type="text/css">
+    <link href="/css/application.css" rel="stylesheet" type="text/css">
 </head>
 
 <body>
@@ -231,23 +232,31 @@
                 </div>
             </div>
             <!-- /.row -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Clusters
+                        </div>
+                        <div class="panel-body">
+                            <div class="col-sm-3" id="clustertree"></div>
+                            <div class="col-sm-9"><div id="map"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <!-- /#page-wrapper -->
 
     </div>
     <!-- /#wrapper -->
-
-    <!-- jQuery -->
-    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
-
-    <!-- Bootstrap Core JavaScript -->
-    <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-
-    <!-- Metis Menu Plugin JavaScript -->
-    <script src="../bower_components/metisMenu/dist/metisMenu.min.js"></script>
-
-    <!-- Custom Theme JavaScript -->
-    <script src="../dist/js/sb-admin-2.js"></script>
+    <script src="/bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/bower_components/metisMenu/dist/metisMenu.min.js"></script>
+    <script src="/bower_components/bootstrap-treeview/dist/bootstrap-treeview.min.js"></script>
+    <script src="/dist/js/sb-admin-2.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js"></script>
+    <script src="/js/application.js"></script>
 
     <script>
         $(document).ready(function() {
@@ -280,7 +289,6 @@
             });
         });
     </script>
-
 </body>
 
 </html>
