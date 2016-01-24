@@ -3,19 +3,24 @@ package controllers;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.SqlUpdate;
 import com.avaje.ebean.annotation.Transactional;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import java.util.Arrays;
+import org.eclipse.jetty.websocket.WebSocket;
+import org.eclipse.jetty.websocket.WebSocketClient;
+import org.eclipse.jetty.websocket.WebSocketClientFactory;
+
+import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
+import java.util.concurrent.TimeoutException;
 
 import auth.SignedIn;
 import models.Application;
@@ -26,11 +31,7 @@ import models.ObjectiveParameter;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
-import play.libs.F;
 import play.libs.Json;
-import play.libs.ws.WSClient;
-import play.libs.ws.WSRequest;
-import play.libs.ws.WSResponse;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
@@ -41,8 +42,16 @@ import static play.data.Form.form;
 
 public class ApplicationController extends Controller {
     private static final Config CONFIG = ConfigFactory.load();
-
-    @Inject WSClient ws;
+    private static final WebSocketClientFactory wsFactory = new WebSocketClientFactory();
+    private static final URI socketUri;
+    static {
+        try {
+            wsFactory.start();
+            socketUri = new URI(CONFIG.getString("pathfinder.server.socket"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Security.Authenticated(SignedIn.class) public Result application(String id) {
         Logger.info(String.format("Serving application %s", id));
@@ -60,7 +69,12 @@ public class ApplicationController extends Controller {
         app.name = form.get("name");
         app.customer = Customer.find.byId(session("email"));
         app.id = UUID.randomUUID().toString();
-        createDefaultCluster(app.id).get(30, TimeUnit.SECONDS);
+        try {
+            createDefaultCluster(app.id);
+        } catch (Exception e) {
+            Logger.error("Failed to create default cluster", e);
+            e.printStackTrace();
+        }
         app.objectiveFunction = ObjectiveFunction.find.byId(ObjectiveFunction.MIN_DIST);
         app.save();
         Logger.info(String.format("%s created application %s", app.customer.email, app.name));
@@ -143,29 +157,38 @@ public class ApplicationController extends Controller {
         update.setParameter("id1", function.id);
         update.setParameter("id2", session("app"));
         update.execute();
-        /*function.refresh();
-        System.out.println(function.id);
-        Application app = Application.find.byId(session("app"));
-        System.out.println(session("app"));
-        System.out.println(app);
-        app.objectiveFunction = function;
-        app.save();
-        app.update();
-        Ebean.update(app);
-        app.refresh();*/
         Logger.info(String.format("Set objective function for %s: %s", session("app"), function.function));
         return redirect(routes.ApplicationController.application(session("app")));
     }
 
-    private F.Promise<Void> createDefaultCluster(String appId) {
-        WSRequest clusterCreateRequest =
-            ws.url(CONFIG.getString("pathfinder.server.url") + "/cluster");
-        ObjectNode message = Json.newObject();
-        message.put("path", appId);
-        return clusterCreateRequest.post(message).map(new F.Function<WSResponse, Void>() {
-            @Override public Void apply(WSResponse response) {
-                return null;
+    private void createDefaultCluster(String appId)
+        throws IOException, InterruptedException, ExecutionException, TimeoutException {
+        WebSocketClient client = this.wsFactory.newWebSocketClient();
+        client.open(socketUri, new WebSocket.OnTextMessage() {
+            @Override public void onOpen(Connection connection) {
+                String message = createDefaultClusterMessage(appId);
+                Logger.info(String.format("Sending ws message: %s", message));
+                try {
+                    connection.sendMessage(message);
+                } catch (IOException e) {
+                    Logger.error("Failed to create default cluster", e);
+                }
             }
-        });
+
+            @Override public void onClose(int closeCode, String message) {}
+            @Override public void onMessage(String data) {
+                Logger.info(String.format("Received ws message: %s", data));
+            }
+        }).get(60, TimeUnit.SECONDS);
+    }
+
+    private String createDefaultClusterMessage(String appId) {
+        ObjectNode message = Json.newObject();
+        ObjectNode value = Json.newObject();
+        value.put("id", appId);
+        message.put("message", "Create");
+        message.put("model", "Cluster");
+        message.set("value", value);
+        return message.toString();
     }
 }

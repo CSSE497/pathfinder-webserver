@@ -11,6 +11,7 @@ libraryDependencies ++= Seq(
   cache,
   javaWs,
   filters,
+  "org.eclipse.jetty" % "jetty-websocket" % "8.1.18.v20150929",
   "org.postgresql" % "postgresql" % "9.4-1203-jdbc42",
   "org.avaje.ebeanorm" % "avaje-ebeanorm-api" % "3.1.1",
   "javax.el" % "javax.el-api" % "3.0.0",
