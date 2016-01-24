@@ -35,11 +35,13 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
+import play.mvc.With;
 import views.html.application;
 
 import static java.util.stream.Collectors.toList;
 import static play.data.Form.form;
 
+@With(ForceHttps.class)
 public class ApplicationController extends Controller {
     private static final Config CONFIG = ConfigFactory.load();
     private static final WebSocketClientFactory wsFactory = new WebSocketClientFactory();

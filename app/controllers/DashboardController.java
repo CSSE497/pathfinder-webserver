@@ -10,7 +10,9 @@ import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
+import play.mvc.With;
 
+@With(ForceHttps.class)
 public class DashboardController extends Controller {
 
     @Security.Authenticated(SignedIn.class) public Result dashboard() {

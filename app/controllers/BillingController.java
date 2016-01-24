@@ -8,8 +8,10 @@ import models.Customer;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
+import play.mvc.With;
 import views.html.billing;
 
+@With(ForceHttps.class)
 public class BillingController extends Controller {
 
     @Security.Authenticated(SignedIn.class) public Result billing() {
