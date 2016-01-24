@@ -20,7 +20,7 @@ libraryDependencies ++= Seq(
 )
 
 javaOptions ++= Seq(
-    "-Dhttp.port=disabled",
+    "-Dhttp.port=80",
     "-Dhttps.port=443",
     "-Dhttps.keyStore=conf/yes.jks",
     "-Dhttps.keyStorePassword=password"

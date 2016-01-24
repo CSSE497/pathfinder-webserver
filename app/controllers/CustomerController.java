@@ -11,10 +11,12 @@ import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
+import play.mvc.With;
 import views.html.index;
 import views.html.login;
 import views.html.profile;
 
+@With(ForceHttps.class)
 public class CustomerController extends Controller {
 
     public Result login() {
