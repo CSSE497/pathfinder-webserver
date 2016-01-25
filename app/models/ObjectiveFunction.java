@@ -15,5 +15,6 @@ import javax.validation.constraints.NotNull;
 
     @Id @NotNull public String id;
     @NotNull public String function;
+    @NotNull public String dsl;
 
 }

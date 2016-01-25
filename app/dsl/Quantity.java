@@ -28,6 +28,9 @@ class Quantity {
     }
 
     static Quantity parse(Object quantity, Map<String, Context.Model> entities) {
+        if (quantity instanceof Integer) {
+            quantity = quantity.toString();
+        }
         if (quantity instanceof String) {
             return parseString((String) quantity, entities);
         } else if (quantity instanceof Map) {
