@@ -223,7 +223,7 @@
                                 </div>
                                 <div class="col-sm-9">
                                     <div class="form-group">
-                                        <textarea id="objectivefunctioncode" name="function" class="form-control codeform" rows="5" @{if (app.objectiveFunction.id.equals(ObjectiveFunction.MIN_DIST) || app.objectiveFunction.id.equals(ObjectiveFunction.MIN_TIME)) "disabled"}>@app.objectiveFunction.function</textarea>
+                                        <textarea id="objectivefunctioncode" name="dsl" class="form-control codeform" rows="12" @{if (app.objectiveFunction.id.equals(ObjectiveFunction.MIN_DIST) || app.objectiveFunction.id.equals(ObjectiveFunction.MIN_TIME)) "disabled"}>@app.objectiveFunction.dsl</textarea>
                                     </div>
                                 </div>
                             }
@@ -281,16 +281,16 @@
             }).on('click', '.removeButton', function() {
                 $(this).parents('.form-group').remove();
             });
-            custom = "@app.objectiveFunction.function";
+            custom = "@app.objectiveFunction.dsl.split('\n').mkString("\\n")";
             $("input[name=functionsradios]").change(function() {
                 $("#objectivefunctioncode").prop("disabled", true);
                 if (this.value == "CUSTOM") {
                     $("#objectivefunctioncode").prop("disabled", false);
                     $("#objectivefunctioncode").val(custom);
                 } else if (this.value == "@ObjectiveFunction.MIN_DIST") {
-                    $("#objectivefunctioncode").val("@ObjectiveFunction.find.byId(ObjectiveFunction.MIN_DIST).function");
+                    $("#objectivefunctioncode").val("@ObjectiveFunction.find.byId(ObjectiveFunction.MIN_DIST).dsl.split('\n').mkString("\\n")");
                 } else if (this.value == "@ObjectiveFunction.MIN_TIME") {
-                    $("#objectivefunctioncode").val("@ObjectiveFunction.find.byId(ObjectiveFunction.MIN_TIME).function");
+                    $("#objectivefunctioncode").val("@ObjectiveFunction.find.byId(ObjectiveFunction.MIN_TIME).dsl.split('\n').mkString("\\n")");
                 }
             });
             $("#objectivefunctioncode").on('input', function(e) {

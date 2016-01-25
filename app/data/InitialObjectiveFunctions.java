@@ -17,7 +17,6 @@ public class InitialObjectiveFunctions {
                 this.getClass().getClassLoader().getResourceAsStream("objectivefunctions.yml");
             Object yaml = Yaml.load(is, this.getClass().getClassLoader());
             if (yaml instanceof List) {
-                Logger.warn("I should be here");
                 List functions = (List) yaml;
                 Ebean.save(functions);
             } else {

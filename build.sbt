@@ -11,6 +11,8 @@ libraryDependencies ++= Seq(
   cache,
   javaWs,
   filters,
+  "junit" % "junit" % "4.8",
+  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.7.0",
   "org.eclipse.jetty" % "jetty-websocket" % "8.1.18.v20150929",
   "org.postgresql" % "postgresql" % "9.4-1203-jdbc42",
   "org.avaje.ebeanorm" % "avaje-ebeanorm-api" % "3.1.1",

@@ -138,7 +138,8 @@ public class ApplicationController extends Controller {
         return redirect(routes.ApplicationController.application(app.id));
     }
 
-    @Security.Authenticated(SignedIn.class) @Transactional public Result setObjectiveFunction() {
+    @Security.Authenticated(SignedIn.class) @Transactional public Result setObjectiveFunction()
+        throws IOException, InterruptedException, ExecutionException, TimeoutException {
         DynamicForm requestData = Form.form().bindFromRequest();
         ObjectiveFunction function;
         switch (requestData.get("functionsradios")) {
@@ -151,10 +152,12 @@ public class ApplicationController extends Controller {
             default:
                 function = new ObjectiveFunction();
                 function.id = UUID.randomUUID().toString();
-                function.function = requestData.get("function");
+                function.dsl = requestData.get("dsl").replaceAll("\r", "");
+                function.function = dsl.ObjectiveFunction.compile(function.dsl).getCompiled();
                 function.save();
                 break;
         }
+        forceRouteUpdate(session("app"));
         SqlUpdate update = Ebean.createSqlUpdate("update application set objective_function_id = :id1 where id = :id2;");
         update.setParameter("id1", function.id);
         update.setParameter("id2", session("app"));
@@ -163,12 +166,21 @@ public class ApplicationController extends Controller {
         return redirect(routes.ApplicationController.application(session("app")));
     }
 
+    private void forceRouteUpdate(String appId)
+        throws InterruptedException, ExecutionException, TimeoutException, IOException {
+        sendMessage(appId, updateDefaultClusterMessage(appId));
+    }
+
     private void createDefaultCluster(String appId)
+        throws InterruptedException, ExecutionException, TimeoutException, IOException {
+        sendMessage(appId, createDefaultClusterMessage(appId));
+    }
+
+    private void sendMessage(String appId, String message)
         throws IOException, InterruptedException, ExecutionException, TimeoutException {
         WebSocketClient client = this.wsFactory.newWebSocketClient();
         client.open(socketUri, new WebSocket.OnTextMessage() {
             @Override public void onOpen(Connection connection) {
-                String message = createDefaultClusterMessage(appId);
                 Logger.info(String.format("Sending ws message: %s", message));
                 try {
                     connection.sendMessage(message);
@@ -191,6 +203,17 @@ public class ApplicationController extends Controller {
         message.put("message", "Create");
         message.put("model", "Cluster");
         message.set("value", value);
+        return message.toString();
+    }
+
+    // TODO: This is 100% a hack, but Dan's server has no other way to do this. This will only
+    // work for Adam's sample app.
+    private String updateDefaultClusterMessage(String appId) {
+        ObjectNode message = Json.newObject();
+        message.put("message", "Update");
+        message.put("model", "Vehicle");
+        message.put("id", 1);
+        message.set("value", Json.newObject());
         return message.toString();
     }
 }
