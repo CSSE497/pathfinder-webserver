@@ -201,7 +201,7 @@ public class ApplicationController extends Controller {
     private static String createDefaultClusterMessage(String appId) {
         ObjectNode message = Json.newObject();
         ObjectNode value = Json.newObject();
-        value.put("id", "root");
+        value.put("id", "/root");
         message.put("message", "Create");
         message.put("model", "Cluster");
         message.set("value", value);
