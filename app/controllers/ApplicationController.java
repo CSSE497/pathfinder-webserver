@@ -1,15 +1,12 @@
 package controllers;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Model;
 import com.avaje.ebean.SqlUpdate;
 import com.avaje.ebean.annotation.Transactional;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-
-import org.eclipse.jetty.websocket.WebSocket;
-import org.eclipse.jetty.websocket.WebSocketClient;
-import org.eclipse.jetty.websocket.WebSocketClientFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -17,10 +14,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+
+import javax.websocket.ClientEndpointConfig;
+import javax.websocket.ContainerProvider;
+import javax.websocket.DeploymentException;
+import javax.websocket.Endpoint;
+import javax.websocket.EndpointConfig;
+import javax.websocket.MessageHandler;
+import javax.websocket.RemoteEndpoint;
+import javax.websocket.Session;
+import javax.websocket.WebSocketContainer;
 
 import auth.SignedIn;
 import models.Application;
@@ -44,11 +49,9 @@ import static play.data.Form.form;
 @With(ForceHttps.class)
 public class ApplicationController extends Controller {
     private static final Config CONFIG = ConfigFactory.load();
-    private static final WebSocketClientFactory wsFactory = new WebSocketClientFactory();
     private static final URI socketUri;
     static {
         try {
-            wsFactory.start();
             socketUri = new URI(CONFIG.getString("pathfinder.server.socket"));
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -71,14 +74,14 @@ public class ApplicationController extends Controller {
         app.name = form.get("name");
         app.customer = Customer.find.byId(session("email"));
         app.id = UUID.randomUUID().toString();
+        app.objectiveFunction = ObjectiveFunction.find.byId(ObjectiveFunction.MIN_DIST);
+        app.save();
         try {
             createDefaultCluster(app.id);
         } catch (Exception e) {
             Logger.error("Failed to create default cluster", e);
             e.printStackTrace();
         }
-        app.objectiveFunction = ObjectiveFunction.find.byId(ObjectiveFunction.MIN_DIST);
-        app.save();
         Logger.info(String.format("%s created application %s", app.customer.email, app.name));
         return redirect(routes.DashboardController.dashboard());
     }
@@ -96,9 +99,7 @@ public class ApplicationController extends Controller {
         Application app = Application.find.byId(session("app"));
         Logger.info(String.format("Setting capacities for %s: %s", app.id, parameters));
         app.refresh();
-        app.capacityParameters.forEach(p -> {
-            p.delete();
-        });
+        app.capacityParameters.forEach(Model::delete);
         Collections.reverse(parameters);
         for (String parameterName : parameters) {
             CapacityParameter parameter = new CapacityParameter();
@@ -124,7 +125,7 @@ public class ApplicationController extends Controller {
         parameters.removeAll(Arrays.asList("", null));
         Application app = Application.find.byId(session("app"));
         Logger.info(String.format("Setting objectives for %s: %s", app.id, parameters));
-        app.objectiveParameters.forEach(p -> p.delete());
+        app.objectiveParameters.forEach(Model::delete);
         Collections.reverse(parameters);
         for (String parameterName : parameters) {
             ObjectiveParameter parameter = new ObjectiveParameter();
@@ -139,7 +140,7 @@ public class ApplicationController extends Controller {
     }
 
     @Security.Authenticated(SignedIn.class) @Transactional public Result setObjectiveFunction()
-        throws IOException, InterruptedException, ExecutionException, TimeoutException {
+        throws IOException, DeploymentException {
         DynamicForm requestData = Form.form().bindFromRequest();
         ObjectiveFunction function;
         switch (requestData.get("functionsradios")) {
@@ -166,40 +167,41 @@ public class ApplicationController extends Controller {
         return redirect(routes.ApplicationController.application(session("app")));
     }
 
-    private void forceRouteUpdate(String appId)
-        throws InterruptedException, ExecutionException, TimeoutException, IOException {
+    private void forceRouteUpdate(String appId) throws IOException, DeploymentException {
         sendMessage(appId, updateDefaultClusterMessage(appId));
     }
 
-    private void createDefaultCluster(String appId)
-        throws InterruptedException, ExecutionException, TimeoutException, IOException {
+    private void createDefaultCluster(String appId) throws IOException, DeploymentException {
         sendMessage(appId, createDefaultClusterMessage(appId));
     }
 
-    private void sendMessage(String appId, String message)
-        throws IOException, InterruptedException, ExecutionException, TimeoutException {
-        WebSocketClient client = this.wsFactory.newWebSocketClient();
-        client.open(socketUri, new WebSocket.OnTextMessage() {
-            @Override public void onOpen(Connection connection) {
-                Logger.info(String.format("Sending ws message: %s", message));
+    private static void sendMessage(String appId, String message) throws IOException, DeploymentException {
+        Logger.info(String.format("Attempting to send %s to %s", message, socketUri));
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        ClientEndpointConfig.Configurator configurator = new ClientEndpointConfig.Configurator() {
+            public void beforeRequest(Map<String, List<String>> headers) {
+                headers.put("Authorization", Arrays.asList(appId));
+            }
+        };
+        container.connectToServer(new Endpoint() {
+            @Override public void onOpen(Session session, EndpointConfig config) {
+                final RemoteEndpoint.Basic remote = session.getBasicRemote();
+                session.addMessageHandler(
+                    (MessageHandler.Whole<String>) message1 -> Logger.info("Received message from apiserver: " + message1));
                 try {
-                    connection.sendMessage(message);
+                    remote.sendText(message);
                 } catch (IOException e) {
-                    Logger.error("Failed to create default cluster", e);
+                    Logger.warn("Failed to create default cluster");
+                    e.printStackTrace();
                 }
             }
-
-            @Override public void onClose(int closeCode, String message) {}
-            @Override public void onMessage(String data) {
-                Logger.info(String.format("Received ws message: %s", data));
-            }
-        }).get(60, TimeUnit.SECONDS);
+        }, ClientEndpointConfig.Builder.create().configurator(configurator).build(), socketUri);
     }
 
-    private String createDefaultClusterMessage(String appId) {
+    private static String createDefaultClusterMessage(String appId) {
         ObjectNode message = Json.newObject();
         ObjectNode value = Json.newObject();
-        value.put("id", appId);
+        value.put("id", "root");
         message.put("message", "Create");
         message.put("model", "Cluster");
         message.set("value", value);
@@ -208,7 +210,7 @@ public class ApplicationController extends Controller {
 
     // TODO: This is 100% a hack, but Dan's server has no other way to do this. This will only
     // work for Adam's sample app.
-    private String updateDefaultClusterMessage(String appId) {
+    private static String updateDefaultClusterMessage(String appId) {
         ObjectNode message = Json.newObject();
         message.put("message", "Update");
         message.put("model", "Vehicle");
