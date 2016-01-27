@@ -73,6 +73,8 @@ $(function() {
                 displaycluster.routeUnsubscribe();
             }
             pf.getCluster(path, function(cluster) {
+                markers.forEach(function(m) { m.setMap(null); });
+                markers = [];
                 displaycluster = cluster;
                 var maxLat = -90
                     ,minLat = 90
@@ -116,6 +118,8 @@ $(function() {
                 map.fitBounds(bounds);
                 map.panToBounds(bounds);
                 cluster.routeSubscribe(function(id){}, function(cluster, routes) {
+                    renderers.forEach(function(r) { r.setMap(null); });
+                    renderers = [];
                     routes.forEach(drawRoute);
                 });
             });
@@ -128,7 +132,9 @@ $(function() {
                     showBorder: false,
                     onNodeSelected: function(event, data) {
                         renderers.forEach(function(r) { r.setMap(null); });
+                        renderers = [];
                         markers.forEach(function(m) { m.setMap(null); });
+                        markers = [];
                         updateMap(currentSubclusterId());
                     }
                 });
