@@ -18,7 +18,7 @@ $(function() {
         if (node.parentId != undefined) {
             return subclusterId(node.parentId) + "/" + node.text;
         } else {
-            return node.text;
+            return "/" + node.text;
         }
     }
 
