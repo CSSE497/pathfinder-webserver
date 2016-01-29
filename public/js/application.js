@@ -18,7 +18,7 @@ $(function() {
         if (node.parentId != undefined) {
             return subclusterId(node.parentId) + "/" + node.text;
         } else {
-            return node.text;
+            return "/" + node.text;
         }
     }
 
@@ -67,12 +67,51 @@ $(function() {
 
         var markers = [];
         var displaycluster = undefined;
+
+	function drawRouteActions(routes) {
+	    console.log("Drawing route actions");
+	    console.log(routes);
+	    var vehicles = routes.map(function(x) { return x.vehicle; });
+	    var actions = [].concat.apply([], routes.map(function(x) { return x.actions; }));
+	    console.log(vehicles);
+	    console.log(actions);
+            var maxLat = -90
+		,minLat = 90
+		,maxLng = -180
+		,minLng = 180;
+	    actions.forEach(function(action) {
+                maxLat = Math.max(maxLat, action.latitude);
+                minLat = Math.min(minLat, action.latitude);
+                maxLng = Math.max(maxLng, action.longitude);
+                minLng = Math.min(minLng, action.longitude);
+		var label = action.action == "Start" ? "T" : action.action == "PickUp" ? "P" : "D";
+		markers.push(new google.maps.Marker({
+		    position: { lat: action.latitude, lng: action.longitude },
+		    map: map,
+		    label: label
+		}));
+	    });
+	    if (maxLng < minLng) return;
+	    var bounds = {
+		"east": maxLng,
+		"west": minLng,
+		"north": maxLat,
+		"south": minLat
+	    };
+	    console.log("Bounds:");
+	    console.log(bounds);
+	    map.fitBounds(bounds);
+	    map.panToBounds(bounds);
+	}
+
         function updateMap(path) {
             $("#maplabel").text("Cluster: " + path);
             if (displaycluster) {
                 displaycluster.routeUnsubscribe();
             }
             pf.getCluster(path, function(cluster) {
+                markers.forEach(function(m) { m.setMap(null); });
+                markers = [];
                 displaycluster = cluster;
                 var maxLat = -90
                     ,minLat = 90
@@ -106,7 +145,6 @@ $(function() {
                     }));
                 });
                 if (maxLng < minLng) return;
-                var count = cluster.commodities.length * 2 + cluster.transports.length;
                 var bounds = {
                     "east": maxLng,
                     "west": minLng,
@@ -116,7 +154,12 @@ $(function() {
                 map.fitBounds(bounds);
                 map.panToBounds(bounds);
                 cluster.routeSubscribe(function(id){}, function(cluster, routes) {
+		    markers.forEach(function(m) { m.setMap(null); });
+		    markers = [];
+                    renderers.forEach(function(r) { r.setMap(null); });
+                    renderers = [];
                     routes.forEach(drawRoute);
+		    drawRouteActions(routes);
                 });
             });
         }
@@ -128,7 +171,9 @@ $(function() {
                     showBorder: false,
                     onNodeSelected: function(event, data) {
                         renderers.forEach(function(r) { r.setMap(null); });
+                        renderers = [];
                         markers.forEach(function(m) { m.setMap(null); });
+                        markers = [];
                         updateMap(currentSubclusterId());
                     }
                 });

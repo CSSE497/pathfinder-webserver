@@ -11,7 +11,6 @@ libraryDependencies ++= Seq(
   cache,
   javaWs,
   filters,
-  "junit" % "junit" % "4.8",
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.7.0",
   "javax.websocket" % "javax.websocket-client-api" % "1.1",
   "org.glassfish.tyrus" % "tyrus-client" % "1.12",
