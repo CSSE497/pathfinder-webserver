@@ -154,12 +154,12 @@ $(function() {
                 map.fitBounds(bounds);
                 map.panToBounds(bounds);
                 cluster.routeSubscribe(function(id){}, function(cluster, routes) {
-		    markers.forEach(function(m) { m.setMap(null); });
-		    markers = [];
+		            markers.forEach(function(m) { m.setMap(null); });
+		            markers = [];
                     renderers.forEach(function(r) { r.setMap(null); });
                     renderers = [];
                     routes.forEach(drawRoute);
-		    drawRouteActions(routes);
+		            drawRouteActions(routes);
                 });
             });
         }
