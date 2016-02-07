@@ -1,9 +1,7 @@
 GET         /                         controllers.IndexController.index()
 
-POST        /register                 controllers.CustomerController.register()
 POST        /login                    controllers.CustomerController.login()
 GET         /logout                   controllers.CustomerController.logout()
-POST        /authenticate             controllers.CustomerController.authenticate()
 
 GET         /dashboard                controllers.DashboardController.dashboard()
 GET         /profile                  controllers.CustomerController.profile()

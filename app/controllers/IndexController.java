@@ -8,6 +8,7 @@ import play.mvc.With;
 @With(ForceHttps.class)
 public class IndexController extends Controller {
     public Result index() {
-        return ok(views.html.index.render(Form.form()));
+        boolean loggedin = session("email") != null;
+        return ok(views.html.index.render(loggedin, Form.form()));
     }
 }

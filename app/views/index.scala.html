@@ -1,4 +1,4 @@
-@(form: DynamicForm)
+@(loggedin: Boolean, form: DynamicForm)
 
 <!DOCTYPE html>
 <html lang="en">
@@ -22,11 +22,31 @@
     <link href="../bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
 
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <meta name="google-signin-client_id" content="555706514291-olo3lfltaf92plod7sbefpnn9ci3ks2b.apps.googleusercontent.com">
+    <script type="text/javascript">
+        function onSignIn(googleUser) {
+            var id_token = googleUser.getAuthResponse().id_token;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "https://thepathfinder.xyz/login");
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onload = function() {
+                console.log("Signed in as: " + xhr.responseText);
+                window.location.href = "https://thepathfinder.xyz/dashboard";
+            };
+            xhr.send("idtoken=" + id_token);
+        }
+        function signOut() {
+            if (gapi.auth2 != undefined) {
+                gapi.auth2.getAuthInstance().signOut();
+            }
+            window.location.href = "https://thepathfinder.xyz/logout";
+        }
+    </script>
 </head>
 
 <body class="theme-line">
 
-    <!--<nav class="navbar navbar-default navbar-fixed-top topnav" role="navigation">-->
     <header id="header" class="header">
         <div class="container">
             <h1 class="navbar-brand">
@@ -48,9 +68,21 @@
                     </li>
                 </ul>
                 <ul class="nav navbar-nav pull-right">
-                    <li>
-                        <a href="login">Sign In</a>
-                    </li>
+                    @if(loggedin) {
+                        <li>
+                            <a href="/dashboard" title="Dashboard">Dashboard</a>
+                        </li>
+                        <li>
+                            <a href="#" onclick='signOut();' title="Sign Out">Sign Out</a>
+                        </li>
+                        <li>
+                            <div class="g-signin2" style="display:none;"></div>
+                        </li>
+                    } else {
+                        <li>
+                            <div class="g-signin2" data-onsuccess="onSignIn"></div>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>
@@ -116,7 +148,7 @@
           <div class="col-lg-5 col-lg-offset-2 col-sm-6">
             <div class="login-panel panel panel-default">
               <div class="panel-body">
-                @helper.form(routes.CustomerController.register) {
+                <form>
                   <fieldset>
                     <div class="form-group">
                       <input class="form-control" placeholder="Email" name="email" type="email" value="@form("email").value">
@@ -129,7 +161,7 @@
                     </div>
                     <button type="submit" class="btn btn-lg btn-success btn-block">Register</button>
                   </fieldset>
-                }
+                </form>
               </div>
             </div>
           </div>
@@ -153,7 +185,7 @@
         </div>
     </div>
 
-	<a  name="contact"></a>
+    <a  name="contact"></a>
     <div class="banner">
 
     </div>
