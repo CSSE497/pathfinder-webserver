@@ -15,7 +15,6 @@ import play.mvc.Result;
 import play.mvc.Security;
 import play.mvc.With;
 import views.html.index;
-import views.html.profile;
 
 @With(ForceHttps.class)
 public class CustomerController extends Controller {
@@ -45,10 +44,5 @@ public class CustomerController extends Controller {
     public Result logout() {
         session().clear();
         return (redirect(routes.IndexController.index()));
-    }
-
-    @Security.Authenticated(SignedIn.class) public Result profile() {
-        List<Application> apps = Customer.find.byId(session("email")).applications;
-        return ok(profile.render(apps));
     }
 }
