@@ -91,7 +91,6 @@ public class ApplicationController extends Controller {
         List<String> parameters = new ArrayList<>();
         for (int i = 0; ; i++) {
             String p = form.field("parameters[" + i + "]").value();
-            System.out.println(p);
             if (p == null) break;
             parameters.add(p);
         }
@@ -118,7 +117,6 @@ public class ApplicationController extends Controller {
         List<String> parameters = new ArrayList<>();
         for (int i = 0; ; i++) {
             String p = form.field("parameters[" + i + "]").value();
-            System.out.println(p);
             if (p == null) break;
             parameters.add(p);
         }

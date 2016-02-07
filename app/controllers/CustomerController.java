@@ -25,7 +25,6 @@ public class CustomerController extends Controller {
         String idtoken = form.get("idtoken");
         String verifyUrl = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + idtoken;
         return WS.url(verifyUrl).get().map(response -> {
-            System.out.println(response);
             if (response.getStatus() != 200) {
                 return badRequest("Invalid token");
             } else {
