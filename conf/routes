@@ -20,3 +20,5 @@ GET         /css/*file                controllers.Assets.at(path="/public/css", 
 GET         /img/*file                controllers.Assets.at(path="/public/img", file)
 GET         /less/*file               controllers.Assets.at(path="/public/less", file)
 GET         /fonts/*file              controllers.Assets.at(path="/public/bower_components/font-awesome/fonts", file)
+
+GET         /favicon.ico              controllers.Assets.at(path="/public/img", file="favicon.ico")
