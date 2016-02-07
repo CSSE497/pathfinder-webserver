@@ -37,9 +37,7 @@
             xhr.send("idtoken=" + id_token);
         }
         function signOut() {
-            if (gapi.auth2 != undefined) {
-                gapi.auth2.getAuthInstance().signOut();
-            }
+            gapi.auth2.getAuthInstance().signOut();
             window.location.href = "https://thepathfinder.xyz/logout";
         }
     </script>
@@ -80,7 +78,7 @@
                         </li>
                     } else {
                         <li>
-                            <div class="g-signin2" data-onsuccess="onSignIn"></div>
+                            <div class="g-signin2" style="margin-top: 7px;" data-onsuccess="onSignIn"></div>
                         </li>
                     }
                 </ul>

@@ -19,3 +19,4 @@ GET         /js/*file                 controllers.Assets.at(path="/public/js", f
 GET         /css/*file                controllers.Assets.at(path="/public/css", file)
 GET         /img/*file                controllers.Assets.at(path="/public/img", file)
 GET         /less/*file               controllers.Assets.at(path="/public/less", file)
+GET         /fonts/*file              controllers.Assets.at(path="/public/bower_components/font-awesome/fonts", file)
