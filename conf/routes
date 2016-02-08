@@ -1,13 +1,9 @@
 GET         /                         controllers.IndexController.index()
 
-POST        /register                 controllers.CustomerController.register()
-GET         /login                    controllers.CustomerController.login()
+POST        /login                    controllers.CustomerController.login()
 GET         /logout                   controllers.CustomerController.logout()
-POST        /authenticate             controllers.CustomerController.authenticate()
 
 GET         /dashboard                controllers.DashboardController.dashboard()
-GET         /profile                  controllers.CustomerController.profile()
-GET         /billing                  controllers.BillingController.billing()
 
 GET         /application/:id          controllers.ApplicationController.application(id)
 POST        /createapplication        controllers.ApplicationController.create()
@@ -21,3 +17,6 @@ GET         /js/*file                 controllers.Assets.at(path="/public/js", f
 GET         /css/*file                controllers.Assets.at(path="/public/css", file)
 GET         /img/*file                controllers.Assets.at(path="/public/img", file)
 GET         /less/*file               controllers.Assets.at(path="/public/less", file)
+GET         /fonts/*file              controllers.Assets.at(path="/public/bower_components/font-awesome/fonts", file)
+
+GET         /favicon.ico              controllers.Assets.at(path="/public/img", file="favicon.ico")

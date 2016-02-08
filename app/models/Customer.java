@@ -21,7 +21,6 @@ import javax.validation.constraints.Size;
     };
 
     @Id @NotNull public String email;
-    @JsonIgnore @NotNull @Size(min = PASSWORD_MIN_LENGTH) public String password;
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL) public List<Application>
         applications;
     @Version public Timestamp lastUpdate;
