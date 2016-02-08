@@ -3,6 +3,11 @@
   resize: none;
 }
 
+.marketing {
+  margin-top: 80px;
+  margin-bottom: 80px;
+}
+
 h1.navbar-brand a {
   background-image: url(https://www.filepicker.io/api/file/bWLRlxiGT4WZQOT5nRoY)
 }
