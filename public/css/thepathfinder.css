@@ -57,8 +57,8 @@ h1.navbar-brand a {
 .theme-solid.body-threes .section-right .threes-nav .btn-default:hover,.theme-solid.page-docs.body-threes .section-right .threes-nav .pull-right a:hover {  color: #017d67;  border-color: #017d67;}
 .theme-solid.header-gradient header {  background: -moz-linear-gradient(top, #017d67, #003128);  background: -webkit-gradient(linear, left top, #017d67, #003128);  background: -webkit-linear-gradient(top, #017d67, #003128);  background: linear-gradient(to bottom, #017d67, #003128);}
 .theme-solid.header-custom .header {  background-image: url(undefined);  background-position: center center;}
-body {  font-weight: 400;font-family: Open Sans, sans-serif;;}h
-1, h2, h3, h4, h5, h6 {  font-weight: 400;font-family: Open Sans, sans-serif;;}
+body {  font-weight: 400;font-family: Open Sans, sans-serif;}
+h1, h2, h3, h4, h5, h6 {  font-weight: 400;font-family: Open Sans, sans-serif;}
 .submit-vote.submit-vote-parent.voted a.submit-vote-button,.submit-vote.submit-vote-parent a.submit-vote-button:hover {  background-color: #017d67;}
 div.submit-vote.submit-vote-parent.voted a.submit-vote-button:hover {  background-color: #001814;}
 a,.link .title {  color: #017d67;}
