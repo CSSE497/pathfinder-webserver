@@ -35,6 +35,7 @@ $(function() {
     function initializeMap() {
         var mapCanvas = document.getElementById("map");
         var mapOptions = {
+            // Initially center on SF
             center: new google.maps.LatLng(37.7833, -122.4167),
             zoom: 11,
             mapTypeId: google.maps.MapTypeId.ROADMAP,
@@ -44,31 +45,45 @@ $(function() {
         var map = new google.maps.Map(mapCanvas, mapOptions);
         var directionsService = new google.maps.DirectionsService();
 
-        var renderers = []
+        var renderers = {};
         function drawRoute(route) {
             if (route.actions.length < 2) return;
-            var directionsDisplay = new google.maps.DirectionsRenderer({ preserveViewport: true, suppressMarkers: true });
-            renderers.push(directionsDisplay);
-            directionsDisplay.setMap(map);
-            var start = route.actions[0];
-            var end = route.actions[route.actions.length - 1];
-            var request = {
-                origin: { lat: start.latitude, lng: start.longitude },
-                destination: { lat: end.latitude, lng: end.longitude },
-                waypoints: route.actions.slice(1, -1).map(function(a) { return { location: { lat: a.latitude, lng: a.longitude }}}),
-                travelMode: google.maps.TravelMode.DRIVING
-            };
-            directionsService.route(request, function(result, status) {
-                if (status == google.maps.DirectionsStatus.OK) {
-                    directionsDisplay.setDirections(result);
-                }
-            });
+            var rendererKey = JSON.stringify(route);
+            var newRenderers = {};
+            if (!(rendererKey in renderers)) {
+                var directionsDisplay = new google.maps.DirectionsRenderer({
+                    preserveViewport: true,
+                    suppressMarkers: true
+                });
+                newRenderers[rendererKey] = directionsDisplay;
+                directionsDisplay.setMap(map);
+                var start = route.actions[0];
+                var end = route.actions[route.actions.length - 1];
+                var request = {
+                    origin: {lat: start.latitude, lng: start.longitude},
+                    destination: {lat: end.latitude, lng: end.longitude},
+                    waypoints: route.actions.slice(1, -1).map(function (a) {
+                        return {location: {lat: a.latitude, lng: a.longitude}}
+                    }),
+                    travelMode: google.maps.TravelMode.DRIVING
+                };
+                directionsService.route(request, function (result, status) {
+                    if (status == google.maps.DirectionsStatus.OK) {
+                        directionsDisplay.setDirections(result);
+                    }
+                });
+            } else {
+                newRenderers[rendererKey] = renderers[rendererKey];
+            }
+            renderers.forEach(function(k, v) { v.setMap(null); });
+            renderers = newRenderers;
         }
 
-        var markers = [];
+        var markers = {};
         var displaycluster = undefined;
 
         function drawRouteActions(routes) {
+            var newMarkers = {};
             console.log("Drawing route actions");
             console.log(routes);
             var vehicles = routes.map(function(x) { return x.vehicle; });
@@ -85,12 +100,21 @@ $(function() {
                 maxLng = Math.max(maxLng, action.longitude);
                 minLng = Math.min(minLng, action.longitude);
                 var label = action.action == "Start" ? "T" : action.action == "PickUp" ? "P" : "D";
-                markers.push(new google.maps.Marker({
-                    position: { lat: action.latitude, lng: action.longitude },
-                    map: map,
-                    label: label
-                }));
+                var markerKey = JSON.stringify(action);
+                if (markerKey in markers) {
+                    newMarkers[markerKey] = markers[markerKey];
+                } else {
+                    newMarkers[markerKey] = new google.maps.Marker({
+                        position: { lat: action.latitude, lng: action.longitude },
+                        map: map,
+                        label: label
+                    });
+                }
             });
+            markers.forEach(function(k, v) {
+                if (!(k in newMarkers)) v.setMap(null);
+            });
+            markers = newMarkers
             if (maxLng < minLng) return;
             var bounds = {
                 "east": maxLng,
@@ -105,13 +129,13 @@ $(function() {
         }
 
         function updateMap(path) {
-            $("#maplabel").text("Cluster: " + path);
+            $("#maplabel").text("Cluster id: " + path);
             if (displaycluster) {
                 displaycluster.routeUnsubscribe();
             }
             pf.getCluster(path, function(cluster) {
-                markers.forEach(function(m) { m.setMap(null); });
-                markers = [];
+                markers.forEach(function(k, v) { v.setMap(null); });
+                markers = {};
                 displaycluster = cluster;
                 var maxLat = -90
                     ,minLat = 90
@@ -122,27 +146,27 @@ $(function() {
                     minLat = Math.min(minLat, commodity.startLat, commodity.endLat);
                     maxLng = Math.max(maxLng, commodity.startLng, commodity.endLng);
                     minLng = Math.min(minLng, commodity.startLng, commodity.endLng);
-                    markers.push(new google.maps.Marker({
+                    markers[JSON.stringify(commodity)] = new google.maps.Marker({
                         position: { lat: commodity.startLat, lng: commodity.startLng },
                         map: map,
                         label: "P"
-                    }));
-                    markers.push(new google.maps.Marker({
+                    });
+                    markers[JSON.stringify(commodity)] = new google.maps.Marker({
                         position: { lat: commodity.endLat, lng: commodity.endLng },
                         map: map,
                         label: "D"
-                    }));
+                    });
                 });
                 cluster.transports.forEach(function(transport) {
                     maxLat = Math.max(maxLat, transport.lat);
                     minLat = Math.min(minLat, transport.lat);
                     maxLng = Math.max(maxLng, transport.lng);
                     minLng = Math.min(minLng, transport.lng);
-                    markers.push(new google.maps.Marker({
+                    markers[JSON.stringify(transport)] = new google.maps.Marker({
                         position: { lat: transport.lat, lng: transport.lng },
                         map: map,
                         label: "Transport"
-                    }));
+                    });
                 });
                 if (maxLng < minLng) return;
                 var bounds = {
@@ -154,10 +178,6 @@ $(function() {
                 map.fitBounds(bounds);
                 map.panToBounds(bounds);
                 cluster.routeSubscribe(function(id){}, function(cluster, routes) {
-                    markers.forEach(function(m) { m.setMap(null); });
-                    markers = [];
-                    renderers.forEach(function(r) { r.setMap(null); });
-                    renderers = [];
                     routes.forEach(drawRoute);
                     drawRouteActions(routes);
                 });
@@ -170,10 +190,10 @@ $(function() {
                     data: [tree(cluster)],
                     showBorder: false,
                     onNodeSelected: function(event, data) {
-                        renderers.forEach(function(r) { r.setMap(null); });
-                        renderers = [];
-                        markers.forEach(function(m) { m.setMap(null); });
-                        markers = [];
+                        renderers.forEach(function(k, v) { v.setMap(null); });
+                        renderers = {};
+                        markers.forEach(function(k, v) { v.setMap(null); });
+                        markers = {};
                         updateMap(currentSubclusterId());
                     }
                 });
@@ -195,5 +215,3 @@ $(function() {
 
     google.maps.event.addDomListener(window, 'load', initializeMap);
 });
-
-
