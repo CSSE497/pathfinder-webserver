@@ -28,6 +28,7 @@ $(function() {
     }
 
     $("#createsubcluster").prop("disabled", true);
+    $("#forcerefresh").prop("disabled", true);
     $("#subclusterinput").keyup(function() {
         $("#createsubcluster").prop("disabled", this.value == "" ? true : false);
     });
@@ -82,7 +83,7 @@ $(function() {
                     newRenderers.set(rendererKey, renderers.get(rendererKey));
                 }
             }
-            renderers.forEach(function(v, k, m) { v.setMap(null); });
+            renderers.forEach(function(v, k, m) { if (!newRenderers.has(k)) v.setMap(null); });
             renderers = newRenderers;
         }
 
@@ -107,7 +108,7 @@ $(function() {
                 var label = action.action == "Start" ? "T" : action.action == "PickUp" ? "P" : "D";
                 var markerKey = JSON.stringify(action);
                 if (markers.has(markerKey)) {
-                    newMarkers.set(markerKey, markers[markerKey]);
+                    newMarkers.set(markerKey, markers.get(markerKey));
                 } else {
                     newMarkers.set(markerKey, new google.maps.Marker({
                         position: { lat: action.latitude, lng: action.longitude },
@@ -125,8 +126,6 @@ $(function() {
                 "north": maxLat,
                 "south": minLat
             };
-            console.log("Bounds:");
-            console.log(bounds);
             map.fitBounds(bounds);
             map.panToBounds(bounds);
         }
@@ -145,31 +144,35 @@ $(function() {
                     ,maxLng = -180
                     ,minLng = 180;
                 cluster.commodities.forEach(function(commodity) {
-                    maxLat = Math.max(maxLat, commodity.startLat, commodity.endLat);
-                    minLat = Math.min(minLat, commodity.startLat, commodity.endLat);
-                    maxLng = Math.max(maxLng, commodity.startLng, commodity.endLng);
-                    minLng = Math.min(minLng, commodity.startLng, commodity.endLng);
-                    markers.set(JSON.stringify(commodity) + "P", new google.maps.Marker({
-                        position: { lat: commodity.startLat, lng: commodity.startLng },
-                        map: map,
-                        label: "P"
-                    }));
-                    markers.set(JSON.stringify(commodity) + "D", new google.maps.Marker({
-                        position: { lat: commodity.endLat, lng: commodity.endLng },
-                        map: map,
-                        label: "D"
-                    }));
+                    if (commodity.status == "Waiting") {
+                        maxLat = Math.max(maxLat, commodity.startLat, commodity.endLat);
+                        minLat = Math.min(minLat, commodity.startLat, commodity.endLat);
+                        maxLng = Math.max(maxLng, commodity.startLng, commodity.endLng);
+                        minLng = Math.min(minLng, commodity.startLng, commodity.endLng);
+                        markers.set(JSON.stringify(commodity) + "P", new google.maps.Marker({
+                            position: { lat: commodity.startLat, lng: commodity.startLng },
+                            map: map,
+                            label: "P"
+                        }));
+                        markers.set(JSON.stringify(commodity) + "D", new google.maps.Marker({
+                            position: { lat: commodity.endLat, lng: commodity.endLng },
+                            map: map,
+                            label: "D"
+                        }));
+                    }
                 });
                 cluster.transports.forEach(function(transport) {
-                    maxLat = Math.max(maxLat, transport.lat);
-                    minLat = Math.min(minLat, transport.lat);
-                    maxLng = Math.max(maxLng, transport.lng);
-                    minLng = Math.min(minLng, transport.lng);
-                    markers.set(JSON.stringify(transport), new google.maps.Marker({
-                        position: { lat: transport.lat, lng: transport.lng },
-                        map: map,
-                        label: "Transport"
-                    }));
+                    if (transport.status == "Online") {
+                        maxLat = Math.max(maxLat, transport.lat);
+                        minLat = Math.min(minLat, transport.lat);
+                        maxLng = Math.max(maxLng, transport.lng);
+                        minLng = Math.min(minLng, transport.lng);
+                        markers.set(JSON.stringify(transport), new google.maps.Marker({
+                            position: { lat: transport.lat, lng: transport.lng },
+                            map: map,
+                            label: "T"
+                        }));
+                    }
                 });
                 if (maxLng < minLng) return;
                 var bounds = {
@@ -193,6 +196,7 @@ $(function() {
                     data: [tree(cluster)],
                     showBorder: false,
                     onNodeSelected: function(event, data) {
+                        $("#forcerefresh").prop("disabled", false);
                         renderers.forEach(function(v, k, m) { v.setMap(null); });
                         renderers = new Map();
                         markers.forEach(function(v, k, m) { v.setMap(null); });
@@ -214,6 +218,7 @@ $(function() {
 
         loadTree();
         $("#createsubcluster").click(createSubcluster);
+        $("#forcerefresh").click(function() { pf.recalculate(currentSubclusterId()) });
     }
 
     google.maps.event.addDomListener(window, 'load', initializeMap);
