@@ -1,3 +1,14 @@
+String.prototype.hashCode = function(){
+    var hash = 0;
+    if (this.length == 0) return hash;
+    for (i = 0; i < this.length; i++) {
+        char = this.charCodeAt(i);
+        hash = ((hash<<5)-hash)+char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash;
+};
+
 $(function() {
     if (!Array.prototype.last) {
         Array.prototype.last = function() {
@@ -56,8 +67,9 @@ $(function() {
                 console.log("My route is");
                 console.log(route);
                 if (route.actions.length < 2) continue;
-                var rendererKey = JSON.stringify(route);
+                var rendererKey = JSON.stringify(route).hashCode();
                 if (!renderers.has(rendererKey)) {
+                    console.log("Creating new renderer with key " + rendererKey);
                     var directionsDisplay = new google.maps.DirectionsRenderer({
                         preserveViewport: true,
                         suppressMarkers: true
@@ -74,12 +86,19 @@ $(function() {
                         }),
                         travelMode: google.maps.TravelMode.DRIVING
                     };
-                    directionsService.route(request, function (result, status) {
-                        if (status == google.maps.DirectionsStatus.OK) {
-                            directionsDisplay.setDirections(result);
+                    console.log(request);
+                    directionsService.route(request, (function(display) {
+                        // I wrapped this in a closure b/c directionsDisplay changes.
+                        return function(result, status) {
+                            if (status == google.maps.DirectionsStatus.OK) {
+                                display.setDirections(result);
+                            } else {
+                                console.log("Not great response from gmaps: " + status);
+                            }
                         }
-                    });
+                    })(directionsDisplay));
                 } else {
+                    console.log("Using old renderer");
                     newRenderers.set(rendererKey, renderers.get(rendererKey));
                 }
             }
