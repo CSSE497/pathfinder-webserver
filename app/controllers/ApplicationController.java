@@ -156,17 +156,17 @@ public class ApplicationController extends Controller {
                 function.save();
                 break;
         }
-        forceRouteUpdate(session("app"));
         SqlUpdate update = Ebean.createSqlUpdate("update application set objective_function_id = :id1 where id = :id2;");
         update.setParameter("id1", function.id);
         update.setParameter("id2", session("app"));
         update.execute();
         Logger.info(String.format("Set objective function for %s: %s", session("app"), function.function));
+        forceRouteUpdate(session("app"));
         return redirect(routes.ApplicationController.application(session("app")));
     }
 
     private void forceRouteUpdate(String appId) throws IOException, DeploymentException {
-        sendMessage(appId, updateDefaultClusterMessage(appId));
+        sendMessage(appId, recalculateMessage("/root"));
     }
 
     private void createDefaultCluster(String appId) throws IOException, DeploymentException {
@@ -206,14 +206,10 @@ public class ApplicationController extends Controller {
         return message.toString();
     }
 
-    // TODO: This is 100% a hack, but Dan's server has no other way to do this. This will only
-    // work for Adam's sample app.
-    private static String updateDefaultClusterMessage(String appId) {
+    private static String recalculateMessage(String clusterId) {
         ObjectNode message = Json.newObject();
-        message.put("message", "Update");
-        message.put("model", "Vehicle");
-        message.put("id", 1);
-        message.set("value", Json.newObject());
+        message.put("message", "Recalculate");
+        message.put("clusterId", clusterId);
         return message.toString();
     }
 }
