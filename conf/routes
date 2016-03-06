@@ -5,7 +5,8 @@ GET         /logout                   controllers.CustomerController.logout()
 
 GET         /dashboard                controllers.DashboardController.dashboard()
 
-GET         /application/:id          controllers.ApplicationController.application(id)
+GET         /application              controllers.ApplicationController.application()
+GET         /application/:id          controllers.ApplicationController.setApplication(id)
 POST        /createapplication        controllers.ApplicationController.create()
 POST        /setcapacities            controllers.ApplicationController.setCapacities()
 POST        /setobjectives            controllers.ApplicationController.setObjectives()
