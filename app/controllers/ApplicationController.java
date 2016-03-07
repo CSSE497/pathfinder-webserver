@@ -58,11 +58,16 @@ public class ApplicationController extends Controller {
         }
     }
 
-    @Security.Authenticated(SignedIn.class) public Result application(String id) {
+    @Security.Authenticated(SignedIn.class) public Result setApplication(String id) {
+        session().put("app", id);
+        return redirect(routes.ApplicationController.application());
+    }
+
+    @Security.Authenticated(SignedIn.class) public Result application() {
+        String id = session().get("app");
         Logger.info(String.format("Serving application %s", id));
         Application app = Application.find.byId(id);
         List<Application> apps = Customer.find.byId(session("email")).applications;
-        session().put("app", id.toString());
         app.objectiveFunction.refresh();
         return ok(application.render(app, apps, form(), form(), form()));
     }
@@ -109,7 +114,7 @@ public class ApplicationController extends Controller {
         app.refresh();
         Logger.info(String.format("Capacities for %s: %s", app.id,
             app.capacityParameters.stream().map(x -> x.parameter).collect(toList())));
-        return redirect(routes.ApplicationController.application(app.id));
+        return redirect(routes.ApplicationController.application());
     }
 
     @Security.Authenticated(SignedIn.class) public Result setObjectives() {
@@ -134,7 +139,7 @@ public class ApplicationController extends Controller {
         app.refresh();
         Logger.info(String.format("Objectives for %s: %s", app.id,
             app.objectiveParameters.stream().map(x -> x.parameter).collect(toList())));
-        return redirect(routes.ApplicationController.application(app.id));
+        return redirect(routes.ApplicationController.application());
     }
 
     @Security.Authenticated(SignedIn.class) @Transactional public Result setObjectiveFunction()
@@ -162,7 +167,7 @@ public class ApplicationController extends Controller {
         update.execute();
         Logger.info(String.format("Set objective function for %s: %s", session("app"), function.function));
         forceRouteUpdate(session("app"));
-        return redirect(routes.ApplicationController.application(session("app")));
+        return redirect(routes.ApplicationController.application());
     }
 
     private void forceRouteUpdate(String appId) throws IOException, DeploymentException {
