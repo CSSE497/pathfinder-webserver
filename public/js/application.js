@@ -139,6 +139,17 @@ $(function() {
             markers.forEach(function(v, k, m) { if (!newMarkers.has(k)) v.setMap(null); });
             markers = newMarkers;
             if (maxLng < minLng) return;
+            var minDiff = 0.01;
+            var lngDiff = maxLng - minLng;
+            var latDiff = maxLat - minLat;
+            if (lngDiff < minDiff) {
+                maxLng = maxLng + (minDiff - lngDiff) / 2;
+                minLng = minLng - (minDiff - lngDiff) / 2;
+            }
+            if (latDiff < minDiff) {
+                maxLat = maxLat + (minDiff - latDiff) / 2;
+                minLat = minLat - (minDiff - latDiff) / 2;
+            }
             var bounds = {
                 "east": maxLng,
                 "west": minLng,
@@ -194,6 +205,17 @@ $(function() {
                     }
                 });
                 if (maxLng < minLng) return;
+                var minDiff = 0.01;
+                var lngDiff = maxLng - minLng;
+                var latDiff = maxLat - minLat;
+                if (lngDiff < minDiff) {
+                    maxLng = maxLng + (minDiff - lngDiff) / 2;
+                    minLng = minLng - (minDiff - lngDiff) / 2;
+                }
+                if (latDiff < minDiff) {
+                    maxLat = maxLat + (minDiff - latDiff) / 2;
+                    minLat = minLat - (minDiff - latDiff) / 2;
+                }
                 var bounds = {
                     "east": maxLng,
                     "west": minLng,
