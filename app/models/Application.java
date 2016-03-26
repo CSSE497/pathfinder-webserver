@@ -25,6 +25,8 @@ import javax.validation.constraints.NotNull;
 
     @NotNull(message = "Application name was not provided") public String name;
 
+    public byte[] key;
+
     @ManyToOne public Customer customer;
 
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL) public List<CapacityParameter>

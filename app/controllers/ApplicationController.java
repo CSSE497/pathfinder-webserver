@@ -58,12 +58,14 @@ public class ApplicationController extends Controller {
         }
     }
 
-    @Security.Authenticated(SignedIn.class) public Result setApplication(String id) {
+    @Security.Authenticated(SignedIn.class)
+    public Result setApplication(String id) {
         session().put("app", id);
         return redirect(routes.ApplicationController.application());
     }
 
-    @Security.Authenticated(SignedIn.class) public Result application() {
+    @Security.Authenticated(SignedIn.class)
+    public Result application() {
         String id = session().get("app");
         Logger.info(String.format("Serving application %s", id));
         Application app = Application.find.byId(id);
@@ -72,7 +74,8 @@ public class ApplicationController extends Controller {
         return ok(application.render(app, apps, form(), form(), form()));
     }
 
-    @Security.Authenticated(SignedIn.class) public Result create() {
+    @Security.Authenticated(SignedIn.class)
+    public Result create() {
         Logger.info("Creating application");
         DynamicForm form = form().bindFromRequest();
         Application app = new Application();
@@ -91,7 +94,8 @@ public class ApplicationController extends Controller {
         return redirect(routes.DashboardController.dashboard());
     }
 
-    @Security.Authenticated(SignedIn.class) public Result setCapacities() {
+    @Security.Authenticated(SignedIn.class)
+    public Result setCapacities() {
         DynamicForm form = form().bindFromRequest();
         List<String> parameters = new ArrayList<>();
         for (int i = 0; ; i++) {
@@ -117,7 +121,8 @@ public class ApplicationController extends Controller {
         return redirect(routes.ApplicationController.application());
     }
 
-    @Security.Authenticated(SignedIn.class) public Result setObjectives() {
+    @Security.Authenticated(SignedIn.class)
+    public Result setObjectives() {
         DynamicForm form = form().bindFromRequest();
         List<String> parameters = new ArrayList<>();
         for (int i = 0; ; i++) {
@@ -142,7 +147,9 @@ public class ApplicationController extends Controller {
         return redirect(routes.ApplicationController.application());
     }
 
-    @Security.Authenticated(SignedIn.class) @Transactional public Result setObjectiveFunction()
+    @Security.Authenticated(SignedIn.class)
+    @Transactional
+    public Result setObjectiveFunction()
         throws IOException, DeploymentException {
         DynamicForm requestData = Form.form().bindFromRequest();
         ObjectiveFunction function;
@@ -187,7 +194,8 @@ public class ApplicationController extends Controller {
             }
         };
         container.connectToServer(new Endpoint() {
-            @Override public void onOpen(Session session, EndpointConfig config) {
+            @Override
+            public void onOpen(Session session, EndpointConfig config) {
                 final RemoteEndpoint.Basic remote = session.getBasicRemote();
                 session.addMessageHandler(
                     (MessageHandler.Whole<String>) message1 -> Logger.info("Received message from apiserver: " + message1));

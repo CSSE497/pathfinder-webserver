@@ -4,6 +4,7 @@ POST        /login                    controllers.CustomerController.login()
 GET         /logout                   controllers.CustomerController.logout()
 
 GET         /dashboard                controllers.DashboardController.dashboard()
+GET         /generatekey/:id          controllers.DashboardController.generateKey(id)
 
 GET         /application              controllers.ApplicationController.application()
 GET         /application/:id          controllers.ApplicationController.setApplication(id)

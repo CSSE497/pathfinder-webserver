@@ -19,7 +19,8 @@ libraryDependencies ++= Seq(
   "org.avaje.ebeanorm" % "avaje-ebeanorm-api" % "3.1.1",
   "javax.el" % "javax.el-api" % "3.0.0",
   "com.sun.el" % "el-ri" % "1.0",
-  "com.novocode" % "junit-interface" % "0.11" % "test"
+  "com.novocode" % "junit-interface" % "0.11" % "test",
+  "org.bouncycastle" % "bcprov-jdk15on" % "1.54"
 )
 
 javaOptions ++= Seq(
