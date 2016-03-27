@@ -187,6 +187,24 @@ public class ApplicationController extends Controller {
     }
 
     @Security.Authenticated(SignedIn.class)
+    public Result removeFromWhitelist() {
+        DynamicForm form = form().bindFromRequest();
+        String email = form.get("email");
+        PermissionKey key = new PermissionKey();
+        key.applicationId = session("app");
+        key.email = email;
+        Logger.info(String.format("Revoking permissions for %s", email));
+        Permission permission = Permission.find.byId(key);
+        if (permission != null) {
+            permission.delete();
+        } else {
+            Logger.warn(String.format(
+                "Could not revoke permissions for %s because record was not found", email));
+        }
+        return ok();
+    }
+
+    @Security.Authenticated(SignedIn.class)
     @Transactional
     public Result setObjectiveFunction()
         throws IOException, DeploymentException {

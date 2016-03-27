@@ -270,17 +270,29 @@ $(function() {
         if (newEmail.length > 0) {
             var li = document.createElement("li");
             li.setAttribute("class", "list-group-item");
-            li.innerText = newEmail;
+            li.setAttribute("email", newEmail);
+            li.innerHTML = newEmail + '<button onclick="removeFromWhitelist(this.parentNode)" type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
             document.getElementById("auth_whitelist").appendChild(li);
             var addToWhitelistData = new FormData();
             addToWhitelistData.append("email", newEmail);
             var addToWhitelistRequest = new XMLHttpRequest();
             addToWhitelistRequest.open("POST", "/addtowhitelist");
             addToWhitelistRequest.send(addToWhitelistData);
+            document.getElementById("new_whitelist_entry").value = "";
         }
     });
 });
 
 window.changeProvider = function() {
     document.getElementById("custom_auth_url").disabled = !document.getElementById("custom_auth_url_radio").checked;
+}
+
+function removeFromWhitelist(listitem) {
+    var email = listitem.getAttribute("email");
+    listitem.parentNode.removeChild(listitem);
+    var removeData = new FormData();
+    removeData.append("email", email);
+    var removeDataRequest = new XMLHttpRequest();
+    removeDataRequest.open("POST", "/removefromwhitelist");
+    removeDataRequest.send(removeData);
 }

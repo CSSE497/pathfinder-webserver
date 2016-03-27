@@ -251,7 +251,9 @@
                                 <ul id="auth_whitelist" class="list-group">
                                     <li class="list-group-item disabled">Pathfinder hosted auth whitelist</li>
                                     @whitelist.map { email =>
-                                        <li class="list-group-item">@email</li>
+                                        <li email="@email" class="list-group-item">@email
+                                            <button onclick="removeFromWhitelist(this.parentNode)" type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        </li>
                                     }
                                 </ul>
                                 <div class="row">

@@ -15,7 +15,8 @@ public class PermissionKey implements Serializable {
 
     @Override
     public int hashCode() {
-        return email.hashCode() + applicationId.hashCode();
+        return (email == null ? 0 : email.hashCode())
+            + (applicationId == null ? 0 : applicationId.hashCode());
     }
 
     @Override

@@ -14,6 +14,7 @@ POST        /setobjectives            controllers.ApplicationController.setObjec
 POST        /setobjectivefunction     controllers.ApplicationController.setObjectiveFunction()
 POST        /setauthprovider          controllers.ApplicationController.setAuthProvider()
 POST        /addtowhitelist           controllers.ApplicationController.addToWhitelist()
+POST        /removefromwhitelist      controllers.ApplicationController.removeFromWhitelist()
 
 GET         /bower_components/*file   controllers.Assets.at(path="/public/bower_components", file)
 GET         /dist/*file               controllers.Assets.at(path="/public/dist", file)
