@@ -1,4 +1,4 @@
-@(app: Application, whitelist: List[String], capacityForm: DynamicForm, objectivesForm: DynamicForm, objectiveFunctionForm: DynamicForm)
+@(app: Application, whitelist: List[String], id_token: String, capacityForm: DynamicForm, objectivesForm: DynamicForm, objectiveFunctionForm: DynamicForm)
 
 <html lang="en">
 
@@ -281,7 +281,7 @@
     <script src="https://maps.googleapis.com/maps/api/js?key="></script>
 
     <script>
-        var pf = new Pathfinder("@app.id");
+        var pf = new Pathfinder("@app.id", "@id_token");
 
         $(document).ready(function() {
             $("#capacitiesform").on('click', '.addButton', function() {

@@ -36,6 +36,7 @@ public class CustomerController extends Controller {
                     newCustomer.save();
                 }
                 session("email", email);
+                session("id_token", idtoken);
                 return ok(email);
             }
         });

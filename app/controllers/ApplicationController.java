@@ -78,7 +78,7 @@ public class ApplicationController extends Controller {
             .map(p -> p.key.email)
             .collect(Collectors.toList());
         app.objectiveFunction.refresh();
-        return ok(application.render(app, whitelist, form(), form(), form()));
+        return ok(application.render(app, whitelist, session("id_token"), form(), form(), form()));
     }
 
     @Security.Authenticated(SignedIn.class)

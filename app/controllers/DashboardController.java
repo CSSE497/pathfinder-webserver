@@ -35,7 +35,8 @@ public class DashboardController extends Controller {
         keyPairGenerator.initialize(2048);
     }
 
-    @Security.Authenticated(SignedIn.class) public Result dashboard() {
+    @Security.Authenticated(SignedIn.class)
+    public Result dashboard() {
         Logger.info(String.format("Serving applications for %s", session("email")));
         List<Application> apps = Customer.find.byId(session("email")).applications;
         return ok(views.html.dashboard.render(apps, Form.form()));
