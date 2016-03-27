@@ -13,9 +13,11 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.websocket.ClientEndpointConfig;
 import javax.websocket.ContainerProvider;
@@ -33,6 +35,8 @@ import models.CapacityParameter;
 import models.Customer;
 import models.ObjectiveFunction;
 import models.ObjectiveParameter;
+import models.Permission;
+import models.PermissionKey;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -69,9 +73,12 @@ public class ApplicationController extends Controller {
         String id = session().get("app");
         Logger.info(String.format("Serving application %s", id));
         Application app = Application.find.byId(id);
-        List<Application> apps = Customer.find.byId(session("email")).applications;
+        List<String> whitelist = Permission.find.all().stream()
+            .filter(p -> p.key.applicationId.equals(id))
+            .map(p -> p.key.email)
+            .collect(Collectors.toList());
         app.objectiveFunction.refresh();
-        return ok(application.render(app, apps, form(), form(), form()));
+        return ok(application.render(app, whitelist, form(), form(), form()));
     }
 
     @Security.Authenticated(SignedIn.class)
@@ -150,9 +157,9 @@ public class ApplicationController extends Controller {
     @Security.Authenticated(SignedIn.class)
     public Result setAuthProvider() {
         DynamicForm form = form().bindFromRequest();
-        String auth_url = form.get("authradio").equals("CUSTOM_AUTH") ? form.get("custom_auth_url") : Application.PATHFINDER_HOSTED_AUTH_URL;
+        String authUrl = form.get("authradio").equals("CUSTOM_AUTH") ? form.get("custom_auth_url") : Application.PATHFINDER_HOSTED_AUTH_URL;
         SqlUpdate update = Ebean.createSqlUpdate("update application set auth_url = :id1 where id = :id2;");
-        update.setParameter("id1", auth_url);
+        update.setParameter("id1", authUrl);
         update.setParameter("id2", session("app"));
         update.execute();
         Application app = Application.find.byId(session("app"));
@@ -160,6 +167,23 @@ public class ApplicationController extends Controller {
             String.format("Processing auth provider form post for %s to %s", app.id, app.auth_url));
         System.out.println(form.data());
         return redirect(routes.ApplicationController.application());
+    }
+
+    @Security.Authenticated(SignedIn.class)
+    public Result addToWhitelist() {
+        DynamicForm form = form().bindFromRequest();
+        String newWhitelistedEmail = form.get("email");
+        PermissionKey permissionKey = new PermissionKey();
+        permissionKey.applicationId = session("app");
+        permissionKey.email = newWhitelistedEmail;
+        if (Permission.find.byId(permissionKey) == null) {
+            Permission permission = new Permission();
+            permission.key = permissionKey;
+            permission.permissions = new HashMap<>();
+            permission.save();
+            Logger.info(String.format("Adding %s to whitelist", newWhitelistedEmail));
+        }
+        return ok();
     }
 
     @Security.Authenticated(SignedIn.class)

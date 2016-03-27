@@ -13,6 +13,7 @@ POST        /setcapacities            controllers.ApplicationController.setCapac
 POST        /setobjectives            controllers.ApplicationController.setObjectives()
 POST        /setobjectivefunction     controllers.ApplicationController.setObjectiveFunction()
 POST        /setauthprovider          controllers.ApplicationController.setAuthProvider()
+POST        /addtowhitelist           controllers.ApplicationController.addToWhitelist()
 
 GET         /bower_components/*file   controllers.Assets.at(path="/public/bower_components", file)
 GET         /dist/*file               controllers.Assets.at(path="/public/dist", file)

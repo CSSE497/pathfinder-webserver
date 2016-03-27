@@ -1,4 +1,4 @@
-@(app: Application, apps: List[Application], capacityForm: DynamicForm, objectivesForm: DynamicForm, objectiveFunctionForm: DynamicForm)
+@(app: Application, whitelist: List[String], capacityForm: DynamicForm, objectivesForm: DynamicForm, objectiveFunctionForm: DynamicForm)
 
 <html lang="en">
 
@@ -248,16 +248,17 @@
                                 }
                             </div>
                             <div class="col-sm-6">
-                                <ul class="list-group">
+                                <ul id="auth_whitelist" class="list-group">
                                     <li class="list-group-item disabled">Pathfinder hosted auth whitelist</li>
-                                    <li class="list-group-item">adam@@ajmichael.net</li>
-                                    <li class="list-group-item">mike@@firebase.com</li>
+                                    @whitelist.map { email =>
+                                        <li class="list-group-item">@email</li>
+                                    }
                                 </ul>
                                 <div class="row">
                                     <div class="col-sm-10">
-                                        <input class="form-control" type="text" class="form-control" placeholder="foo@@bar.com">
+                                        <input id="new_whitelist_entry" class="form-control" type="text" class="form-control" placeholder="foo@@bar.com">
                                     </div>
-                                    <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
+                                    <button id="whitelist_add" type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
                                 </div>
                             </div>
                         </div>

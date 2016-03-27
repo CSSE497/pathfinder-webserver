@@ -263,6 +263,22 @@ $(function() {
     }
 
     google.maps.event.addDomListener(window, 'load', initializeMap);
+
+
+    $("#whitelist_add").click(function() {
+        var newEmail = document.getElementById("new_whitelist_entry").value;
+        if (newEmail.length > 0) {
+            var li = document.createElement("li");
+            li.setAttribute("class", "list-group-item");
+            li.innerText = newEmail;
+            document.getElementById("auth_whitelist").appendChild(li);
+            var addToWhitelistData = new FormData();
+            addToWhitelistData.append("email", newEmail);
+            var addToWhitelistRequest = new XMLHttpRequest();
+            addToWhitelistRequest.open("POST", "/addtowhitelist");
+            addToWhitelistRequest.send(addToWhitelistData);
+        }
+    });
 });
 
 window.changeProvider = function() {
