@@ -148,6 +148,21 @@ public class ApplicationController extends Controller {
     }
 
     @Security.Authenticated(SignedIn.class)
+    public Result setAuthProvider() {
+        DynamicForm form = form().bindFromRequest();
+        String auth_url = form.get("authradio").equals("CUSTOM_AUTH") ? form.get("custom_auth_url") : Application.PATHFINDER_HOSTED_AUTH_URL;
+        SqlUpdate update = Ebean.createSqlUpdate("update application set auth_url = :id1 where id = :id2;");
+        update.setParameter("id1", auth_url);
+        update.setParameter("id2", session("app"));
+        update.execute();
+        Application app = Application.find.byId(session("app"));
+        Logger.info(
+            String.format("Processing auth provider form post for %s to %s", app.id, app.auth_url));
+        System.out.println(form.data());
+        return redirect(routes.ApplicationController.application());
+    }
+
+    @Security.Authenticated(SignedIn.class)
     @Transactional
     public Result setObjectiveFunction()
         throws IOException, DeploymentException {

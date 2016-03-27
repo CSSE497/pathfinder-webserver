@@ -264,3 +264,7 @@ $(function() {
 
     google.maps.event.addDomListener(window, 'load', initializeMap);
 });
+
+window.changeProvider = function() {
+    document.getElementById("custom_auth_url").disabled = !document.getElementById("custom_auth_url_radio").checked;
+}
