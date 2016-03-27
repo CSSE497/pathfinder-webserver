@@ -235,13 +235,13 @@
                                     <h3>Select your authentication provider</h3>
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="authradio" value="PATHFINDER_AUTH" onclick="changeProvider()" @{if (app.auth_url.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "checked"}>Pathfinder hosted auth
+                                            <input type="radio" name="authradio" value="PATHFINDER_AUTH" onclick="changeProvider()" @{if (app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "checked"}>Pathfinder hosted auth
                                         </label>
                                     </div>
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="authradio" id="custom_auth_url_radio" onclick="changeProvider()" value="CUSTOM_AUTH" @{if (!app.auth_url.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "checked"}>Custom authentication
-                                            <input type="text" name="custom_auth_url" class="form-control" id="custom_auth_url" placeholder="https://your-url.com/auth" @{if (app.auth_url.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "disabled"} @{if (!app.auth_url.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "value=" + app.auth_url}>
+                                            <input type="radio" name="authradio" id="custom_auth_url_radio" onclick="changeProvider()" value="CUSTOM_AUTH" @{if (!app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "checked"}>Custom authentication
+                                            <input type="text" name="custom_auth_url" class="form-control" id="custom_auth_url" placeholder="https://your-url.com/auth" @{if (app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "disabled"} @{if (!app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "value=" + app.authUrl}>
                                         </label>
                                     </div>
                                     <button type="submit" class="btn btn-default">Save authentication settings</button>

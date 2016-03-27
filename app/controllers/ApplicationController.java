@@ -90,7 +90,15 @@ public class ApplicationController extends Controller {
         app.customer = Customer.find.byId(session("email"));
         app.id = UUID.randomUUID().toString();
         app.objectiveFunction = ObjectiveFunction.find.byId(ObjectiveFunction.MIN_DIST);
+        app.authUrl = Application.PATHFINDER_HOSTED_AUTH_URL;
         app.save();
+        PermissionKey permissionKey = new PermissionKey();
+        permissionKey.applicationId = app.id;
+        permissionKey.email = session("email");
+        Permission permission = new Permission();
+        permission.key = permissionKey;
+        permission.permissions = new HashMap<>();
+        permission.save();
         try {
             createDefaultCluster(app.id);
         } catch (Exception e) {
@@ -158,13 +166,13 @@ public class ApplicationController extends Controller {
     public Result setAuthProvider() {
         DynamicForm form = form().bindFromRequest();
         String authUrl = form.get("authradio").equals("CUSTOM_AUTH") ? form.get("custom_auth_url") : Application.PATHFINDER_HOSTED_AUTH_URL;
-        SqlUpdate update = Ebean.createSqlUpdate("update application set auth_url = :id1 where id = :id2;");
+        SqlUpdate update = Ebean.createSqlUpdate("update application set authUrl = :id1 where id = :id2;");
         update.setParameter("id1", authUrl);
         update.setParameter("id2", session("app"));
         update.execute();
         Application app = Application.find.byId(session("app"));
         Logger.info(
-            String.format("Processing auth provider form post for %s to %s", app.id, app.auth_url));
+            String.format("Processing auth provider form post for %s to %s", app.id, app.authUrl));
         System.out.println(form.data());
         return redirect(routes.ApplicationController.application());
     }

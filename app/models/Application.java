@@ -6,6 +6,7 @@ import java.security.Timestamp;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -28,7 +29,8 @@ import javax.validation.constraints.NotNull;
 
     public byte[] key;
 
-    public String auth_url;
+    @Column(name = "auth_url")
+    public String authUrl;
 
     @ManyToOne public Customer customer;
 
