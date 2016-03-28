@@ -13,9 +13,11 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.websocket.ClientEndpointConfig;
 import javax.websocket.ContainerProvider;
@@ -33,6 +35,8 @@ import models.CapacityParameter;
 import models.Customer;
 import models.ObjectiveFunction;
 import models.ObjectiveParameter;
+import models.Permission;
+import models.PermissionKey;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -58,21 +62,27 @@ public class ApplicationController extends Controller {
         }
     }
 
-    @Security.Authenticated(SignedIn.class) public Result setApplication(String id) {
+    @Security.Authenticated(SignedIn.class)
+    public Result setApplication(String id) {
         session().put("app", id);
         return redirect(routes.ApplicationController.application());
     }
 
-    @Security.Authenticated(SignedIn.class) public Result application() {
+    @Security.Authenticated(SignedIn.class)
+    public Result application() {
         String id = session().get("app");
         Logger.info(String.format("Serving application %s", id));
         Application app = Application.find.byId(id);
-        List<Application> apps = Customer.find.byId(session("email")).applications;
+        List<String> whitelist = Permission.find.all().stream()
+            .filter(p -> p.key.applicationId.equals(id))
+            .map(p -> p.key.email)
+            .collect(Collectors.toList());
         app.objectiveFunction.refresh();
-        return ok(application.render(app, apps, form(), form(), form()));
+        return ok(application.render(app, whitelist, session("id_token"), form(), form(), form()));
     }
 
-    @Security.Authenticated(SignedIn.class) public Result create() {
+    @Security.Authenticated(SignedIn.class)
+    public Result create() {
         Logger.info("Creating application");
         DynamicForm form = form().bindFromRequest();
         Application app = new Application();
@@ -80,7 +90,15 @@ public class ApplicationController extends Controller {
         app.customer = Customer.find.byId(session("email"));
         app.id = UUID.randomUUID().toString();
         app.objectiveFunction = ObjectiveFunction.find.byId(ObjectiveFunction.MIN_DIST);
+        app.authUrl = Application.PATHFINDER_HOSTED_AUTH_URL;
         app.save();
+        PermissionKey permissionKey = new PermissionKey();
+        permissionKey.applicationId = app.id;
+        permissionKey.email = session("email");
+        Permission permission = new Permission();
+        permission.key = permissionKey;
+        permission.permissions = new HashMap<>();
+        permission.save();
         try {
             createDefaultCluster(app.id);
         } catch (Exception e) {
@@ -91,7 +109,8 @@ public class ApplicationController extends Controller {
         return redirect(routes.DashboardController.dashboard());
     }
 
-    @Security.Authenticated(SignedIn.class) public Result setCapacities() {
+    @Security.Authenticated(SignedIn.class)
+    public Result setCapacities() {
         DynamicForm form = form().bindFromRequest();
         List<String> parameters = new ArrayList<>();
         for (int i = 0; ; i++) {
@@ -117,7 +136,8 @@ public class ApplicationController extends Controller {
         return redirect(routes.ApplicationController.application());
     }
 
-    @Security.Authenticated(SignedIn.class) public Result setObjectives() {
+    @Security.Authenticated(SignedIn.class)
+    public Result setObjectives() {
         DynamicForm form = form().bindFromRequest();
         List<String> parameters = new ArrayList<>();
         for (int i = 0; ; i++) {
@@ -142,7 +162,59 @@ public class ApplicationController extends Controller {
         return redirect(routes.ApplicationController.application());
     }
 
-    @Security.Authenticated(SignedIn.class) @Transactional public Result setObjectiveFunction()
+    @Security.Authenticated(SignedIn.class)
+    public Result setAuthProvider() {
+        DynamicForm form = form().bindFromRequest();
+        String authUrl = form.get("authradio").equals("CUSTOM_AUTH") ? form.get("custom_auth_url") : Application.PATHFINDER_HOSTED_AUTH_URL;
+        SqlUpdate update = Ebean.createSqlUpdate("update application set authUrl = :id1 where id = :id2;");
+        update.setParameter("id1", authUrl);
+        update.setParameter("id2", session("app"));
+        update.execute();
+        Application app = Application.find.byId(session("app"));
+        Logger.info(
+            String.format("Processing auth provider form post for %s to %s", app.id, app.authUrl));
+        System.out.println(form.data());
+        return redirect(routes.ApplicationController.application());
+    }
+
+    @Security.Authenticated(SignedIn.class)
+    public Result addToWhitelist() {
+        DynamicForm form = form().bindFromRequest();
+        String newWhitelistedEmail = form.get("email");
+        PermissionKey permissionKey = new PermissionKey();
+        permissionKey.applicationId = session("app");
+        permissionKey.email = newWhitelistedEmail;
+        if (Permission.find.byId(permissionKey) == null) {
+            Permission permission = new Permission();
+            permission.key = permissionKey;
+            permission.permissions = new HashMap<>();
+            permission.save();
+            Logger.info(String.format("Adding %s to whitelist", newWhitelistedEmail));
+        }
+        return ok();
+    }
+
+    @Security.Authenticated(SignedIn.class)
+    public Result removeFromWhitelist() {
+        DynamicForm form = form().bindFromRequest();
+        String email = form.get("email");
+        PermissionKey key = new PermissionKey();
+        key.applicationId = session("app");
+        key.email = email;
+        Logger.info(String.format("Revoking permissions for %s", email));
+        Permission permission = Permission.find.byId(key);
+        if (permission != null) {
+            permission.delete();
+        } else {
+            Logger.warn(String.format(
+                "Could not revoke permissions for %s because record was not found", email));
+        }
+        return ok();
+    }
+
+    @Security.Authenticated(SignedIn.class)
+    @Transactional
+    public Result setObjectiveFunction()
         throws IOException, DeploymentException {
         DynamicForm requestData = Form.form().bindFromRequest();
         ObjectiveFunction function;
@@ -187,7 +259,8 @@ public class ApplicationController extends Controller {
             }
         };
         container.connectToServer(new Endpoint() {
-            @Override public void onOpen(Session session, EndpointConfig config) {
+            @Override
+            public void onOpen(Session session, EndpointConfig config) {
                 final RemoteEndpoint.Basic remote = session.getBasicRemote();
                 session.addMessageHandler(
                     (MessageHandler.Whole<String>) message1 -> Logger.info("Received message from apiserver: " + message1));

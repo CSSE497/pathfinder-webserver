@@ -30,3 +30,5 @@ conf/evolutions
 conf/*.keystore
 conf/*.jks
 public/pathfinder.js
+*.pem
+/generated_keys

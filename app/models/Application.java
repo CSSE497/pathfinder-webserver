@@ -6,6 +6,7 @@ import java.security.Timestamp;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -17,6 +18,7 @@ import javax.validation.constraints.NotNull;
 
     public static final int REQUIRED_CREATE_FIELDS = 1;
     public static final int TOKEN_LENGTH = 255;
+    public static final String PATHFINDER_HOSTED_AUTH_URL = "https://auth.thepathfinder.xyz/connection";
     public static final Model.Find<String, Application> find =
         new Model.Find<String, Application>() {
         };
@@ -24,6 +26,11 @@ import javax.validation.constraints.NotNull;
     @Id @NotNull(message = "Id cannot be null") public String id;
 
     @NotNull(message = "Application name was not provided") public String name;
+
+    public byte[] key;
+
+    @Column(name = "auth_url")
+    public String authUrl;
 
     @ManyToOne public Customer customer;
 

@@ -28,7 +28,7 @@
     <script type="text/javascript">
         function signOut() {
             gapi.auth2.getAuthInstance().signOut();
-            window.location.href = "https://thepathfinder.xyz/logout";
+            window.location.href = "/logout";
         }
     </script>
 </head>
@@ -38,7 +38,7 @@
         <header id="header" class="header">
             <div class="container">
                 <h1 class="navbar-brand">
-                    <a href="https://thepathfinder.xyz"></a>
+                    <a href="/"></a>
                 </h1>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
@@ -107,6 +107,11 @@
                                             <label class="col-sm-3 control-label">Identifier</label>
                                             <div class="col-sm-9">
                                                 <input class="form-control" value="@app.id" onClick="this.select();" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-sm-12">
+                                                <a href="@routes.DashboardController.generateKey(app.id)">Generate new key</a>
                                             </div>
                                         </div>
                                     </form>

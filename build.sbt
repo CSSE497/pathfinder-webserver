@@ -17,9 +17,11 @@ libraryDependencies ++= Seq(
   "org.glassfish.tyrus" % "tyrus-container-grizzly-client" % "1.12",
   "org.postgresql" % "postgresql" % "9.4-1203-jdbc42",
   "org.avaje.ebeanorm" % "avaje-ebeanorm-api" % "3.1.1",
+  "org.avaje.ebeanorm" % "avaje-ebeanorm" % "4.6.3",
   "javax.el" % "javax.el-api" % "3.0.0",
   "com.sun.el" % "el-ri" % "1.0",
-  "com.novocode" % "junit-interface" % "0.11" % "test"
+  "com.novocode" % "junit-interface" % "0.11" % "test",
+  "org.bouncycastle" % "bcprov-jdk15on" % "1.54"
 )
 
 javaOptions ++= Seq(
