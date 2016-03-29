@@ -109,7 +109,7 @@ $(function() {
         var markers = new Map();
         var displaycluster = undefined;
 
-        function drawRouteActions(routes) {
+        function drawRouteActions(routes, unroutedCommodities) {
             var newMarkers = new Map();
             console.log("Drawing route actions");
             console.log(routes);
@@ -131,6 +131,43 @@ $(function() {
                 } else {
                     newMarkers.set(markerKey, new google.maps.Marker({
                         position: { lat: action.latitude, lng: action.longitude },
+                        map: map,
+                        label: label
+                    }));
+                }
+            });
+            unroutedCommodities.forEach(function(commodity) {
+                var latitude = commodity.startLatitude;
+                var longitude = commodity.startLongitude;
+                maxLat = Math.max(maxLat, latitude);
+                minLat = Math.min(minLat, latitude);
+                maxLng = Math.max(maxLng, longitude);
+                minLng = Math.min(minLng, longitude);
+                var label = "P";
+                var markerKey = label + latitude + longitude;
+                if (markers.has(markerKey)) {
+                    newMarkers.set(markerKey, markers.get(markerKey));
+                } else {
+                    newMarkers.set(markerKey, new google.maps.Marker({
+                        position: { lat: latitude, lng: longitude },
+                        map: map,
+                        label: label
+                    }));
+                }
+
+                var latitude = commodity.endLatitude;
+                var longitude = commodity.endLongitude;
+                maxLat = Math.max(maxLat, latitude);
+                minLat = Math.min(minLat, latitude);
+                maxLng = Math.max(maxLng, longitude);
+                minLng = Math.min(minLng, longitude);
+                label = "D";
+                markerKey = label + latitude + longitude;
+                if (markers.has(markerKey)) {
+                    newMarkers.set(markerKey, markers.get(markerKey));
+                } else {
+                    newMarkers.set(markerKey, new google.maps.Marker({
+                        position: { lat: latitude, lng: longitude },
                         map: map,
                         label: label
                     }));
@@ -224,9 +261,9 @@ $(function() {
                 };
                 map.fitBounds(bounds);
                 map.panToBounds(bounds);
-                cluster.routeSubscribe(function(id){}, function(cluster, routes) {
+                cluster.routeSubscribe(function(id){}, function(cluster, routes, unroutedCommodities) {
                     drawRoutes(routes);
-                    drawRouteActions(routes);
+                    drawRouteActions(routes, unroutedCommodities);
                 });
             });
         }
