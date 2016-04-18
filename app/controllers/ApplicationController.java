@@ -110,6 +110,14 @@ public class ApplicationController extends Controller {
     }
 
     @Security.Authenticated(SignedIn.class)
+    public Result delete(String appId) {
+        Logger.info("Deleting application " + appId);
+        Application app = Application.find.byId(appId);
+        app.delete();
+        return ok();
+    }
+
+    @Security.Authenticated(SignedIn.class)
     public Result setCapacities() {
         DynamicForm form = form().bindFromRequest();
         List<String> parameters = new ArrayList<>();

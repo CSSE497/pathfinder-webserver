@@ -9,6 +9,7 @@ GET         /generatekey/:id          controllers.DashboardController.generateKe
 GET         /application              controllers.ApplicationController.application()
 GET         /application/:id          controllers.ApplicationController.setApplication(id)
 POST        /createapplication        controllers.ApplicationController.create()
+POST        /deleteapplication/:id    controllers.ApplicationController.delete(id)
 POST        /setcapacities            controllers.ApplicationController.setCapacities()
 POST        /setobjectives            controllers.ApplicationController.setObjectives()
 POST        /setobjectivefunction     controllers.ApplicationController.setObjectiveFunction()

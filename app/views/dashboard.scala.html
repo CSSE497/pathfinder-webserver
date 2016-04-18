@@ -13,7 +13,7 @@
 
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
 
-    <link href="../components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
     <link href="../components/metisMenu/dist/metisMenu.min.css" rel="stylesheet">
     <link href="../dist/css/timeline.css" rel="stylesheet">
     <link href="../dist/css/sb-admin-2.css" rel="stylesheet">
@@ -99,7 +99,11 @@
                         <div class="col-lg-4">
                             <div class="panel panel-default">
                                 <div class="panel-heading">
-                                    <h4>@app.name</h4>
+                                  <h4>@app.name
+                                    <div class="pull-right">
+                                      <a href="#" id="@app.id" onclick="deleteApplication(this)"><i class="fa fa-trash-o"></i></a>
+                                    </div>
+                                  </h4>
                                 </div>
                                 <div class="panel-body" style="min-height: 84px;">
                                     <form class="form-horizontal">
@@ -135,6 +139,7 @@
     <script src="../components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="../components/metisMenu/dist/metisMenu.min.js"></script>
     <script src="../dist/js/sb-admin-2.js"></script>
+    <script src="../js/dashboard.js"></script>
 </body>
 
 </html>
