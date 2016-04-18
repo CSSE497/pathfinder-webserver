@@ -1,31 +1,45 @@
-# Pathfinder WebServer
+# Pathfinder Webserver
 [![Build Status](https://travis-ci.org/CSSE497/pathfinder-webserver.svg?branch=dev)](https://travis-ci.org/CSSE497/pathfinder-webserver)
 
-[![Stories in Ready](https://badge.waffle.io/CSSE497/pathfinder-webserver.svg?label=ready&title=Ready)](http://waffle.io/CSSE497/pathfinder-webserver)
-[![Stories in Progress](https://badge.waffle.io/CSSE497/pathfinder-webserver.svg?label=In%20Progress&title=In%20Progress)](http://waffle.io/CSSE497/pathfinder-webserver)
-[![Stories under Review](https://badge.waffle.io/CSSE497/pathfinder-webserver.svg?label=Under%20Review&title=Under%20Review)](http://waffle.io/CSSE497/pathfinder-webserver)
+This server hosts [https://thepathfinder.xyz](https://thepathfinder.xyz), the main website and user dashboard for the Pathfinder webservice. It allows users to create accounts, register applications, modify route and authentication settings and interact with the transports and commodities in their cluster in real-time.
 
-This is the code responsible for serving the Web Application found at [https://github.com/CSSE497/pathfinder-webclient](https://github.com/CSSE497/pathfinder-webclient).
+## Development Guide
+These instructions exist mostly as a reference for the development team.
 
-This is a placeholder file until we create a more comprehensive README.
 
-# Running the server
+### Local development
+The server can be run and debugged locally with
 
-### Locally
+    activator ~run
 
-```
-activator ~run
-```
+### Standalone release
+A standalone release can be built with
+
+    activator dist
+
+This release can be run with
+
+    unzip -d /opt target/universal/pathfinder-webserver-<version>.zip
+    /opt/pathfinder-webserver-<version>/bin/pathfinder-webserver -Dhttp.port=disabled -Dhttps.port=443 -Dplay.server.https.keyStore.path=<path to jks> -Dplay.server.https.keyStore.password=<jks password>
 
 ### Docker
 
-```
-activator docker:publishLocal
-docker run -p 9000:9000 pathfinder-webserver:1.0-SNAPSHOT
-```
+A Docker image cant be built with
 
-### Tests
+    activator docker:publishLocal
 
-```
-activator test
-```
+The image can be run locally with
+
+    docker run -p 9000:9000 pathfinder-webserver:<version>
+
+The image can be pushed to gcloud with
+
+    gcloud docker push beta.gcr.io/<gcloud project id>/pathfinder-webserver:<version>
+
+The running Docker container can be updated with
+
+    kubectl rolling-update pathfinder-webserver --image=beta.gcr.io/<gcloud project id>/pathfinder-webserver:<version>
+
+## License
+
+[MIT](https://raw.githubusercontent.com/CSSE497/pathfinder-webserver/master/LICENSE).
