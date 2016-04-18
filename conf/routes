@@ -16,12 +16,12 @@ POST        /setauthprovider          controllers.ApplicationController.setAuthP
 POST        /addtowhitelist           controllers.ApplicationController.addToWhitelist()
 POST        /removefromwhitelist      controllers.ApplicationController.removeFromWhitelist()
 
-GET         /bower_components/*file   controllers.Assets.at(path="/public/bower_components", file)
+GET         /components/*file         controllers.Assets.at(path="/public/components", file)
 GET         /dist/*file               controllers.Assets.at(path="/public/dist", file)
 GET         /js/*file                 controllers.Assets.at(path="/public/js", file)
 GET         /css/*file                controllers.Assets.at(path="/public/css", file)
 GET         /img/*file                controllers.Assets.at(path="/public/img", file)
 GET         /less/*file               controllers.Assets.at(path="/public/less", file)
-GET         /fonts/*file              controllers.Assets.at(path="/public/bower_components/font-awesome/fonts", file)
+GET         /fonts/*file              controllers.Assets.at(path="/public/components/font-awesome/fonts", file)
 
 GET         /favicon.ico              controllers.Assets.at(path="/public/img", file="favicon.ico")
