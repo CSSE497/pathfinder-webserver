@@ -32,3 +32,5 @@ conf/*.jks
 public/pathfinder.js
 *.pem
 /generated_keys
+node_modules
+public/components
