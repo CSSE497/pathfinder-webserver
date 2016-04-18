@@ -287,6 +287,7 @@ $(function() {
 
         function createSubcluster() {
             var name = $("#subclusterinput").val();
+            $("#subclusterinput").val("");
             var parent = currentSubclusterId();
             var path = parent + "/" + name;
             pf.createCluster(path, function(cluster) {
