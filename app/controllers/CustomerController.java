@@ -1,5 +1,7 @@
 package controllers;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+
 import java.util.List;
 
 import auth.SignedIn;
@@ -40,6 +42,19 @@ public class CustomerController extends Controller {
                 return ok(email);
             }
         });
+    }
+
+    @Security.Authenticated(SignedIn.class)
+    public Result updateToken(String idToken) {
+        GoogleIdToken.Payload payload = SignedIn.decode(idToken);
+        if (payload != null && payload.getEmail() != null) {
+            session("id_token", idToken);
+            session("email", payload.getEmail());
+            Logger.info("Successfully updated id token");
+        } else {
+            Logger.warn("Failed to update id token");
+        }
+        return ok();
     }
 
     public Result logout() {

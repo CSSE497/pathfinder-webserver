@@ -1,6 +1,4 @@
 function deleteApplication(card) {
-  console.log(card);
-  console.log("Attempting to delete " + card.getAttribute("id"));
   $.ajax({
     type: 'POST',
     url: '/deleteapplication/' + card.getAttribute("id"),
@@ -10,3 +8,15 @@ function deleteApplication(card) {
     }
   });
 }
+
+function updateIdToken () {
+  var auth2 = gapi.auth2.getAuthInstance();
+  var user = auth2.currentUser.get();
+  user.reloadAuthResponse().then(function(response) {
+    $.ajax({
+      type: 'POST',
+      url: '/updatetoken/' + response.id_token
+    });
+  });
+};
+setInterval(updateIdToken, 300000);
