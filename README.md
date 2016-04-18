@@ -15,7 +15,7 @@ The server can be run and debugged locally with
 ### Standalone release
 A standalone release can be built with
 
-    activator dist
+    activator bower dist
 
 This release can be run with
 
