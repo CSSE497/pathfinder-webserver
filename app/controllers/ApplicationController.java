@@ -294,8 +294,8 @@ public class ApplicationController extends Controller {
 			    String connectionId = data.get("id").asText();
 			    String authUrl = authServer +
 				"?id_token=" + idToken +
-				"&connection_id" + connectionId +
-				"&application_id" + appId;
+				"&connection_id=" + connectionId +
+				"&application_id=" + appId;
 			    Logger.info("Posting to auth server: " + authUrl);
 			    WS.url(authUrl)
 				.setContentType("application/x-www-form-urlencoded")
