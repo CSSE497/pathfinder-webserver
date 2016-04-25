@@ -282,6 +282,7 @@ $(function() {
                         updateMap(currentSubclusterId());
                     }
                 });
+                $("ul.list-group > li")[0].click();
             });
         }
 
