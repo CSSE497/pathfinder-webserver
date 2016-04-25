@@ -35,7 +35,7 @@
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.onload = function() {
                 console.log("Signed in as: " + xhr.responseText);
-                window.location.href = "/dashboard";
+                window.location.href = "/applications";
             };
             xhr.send("idtoken=" + id_token);
         }
@@ -73,7 +73,7 @@
                 <ul class="nav navbar-nav pull-right">
                     @if(loggedin) {
                         <li>
-                            <a href="/dashboard" title="Dashboard">Dashboard</a>
+                            <a href="/applications" title="Applications">Applications</a>
                         </li>
                         <li>
                             <a href="#" onclick='signOut();' title="Sign Out">Sign Out</a>
