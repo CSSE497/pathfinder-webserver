@@ -89,7 +89,7 @@
                             @helper.form(routes.ApplicationController.setCapacities(), 'id -> "capacitiesform") {
                                 <div class="form-group">
                                     <div class="col-lg-8">
-                                        <input type="text" class="form-control" name="parameters[]" value="@app.capacityParameters.headOption.map(_.parameter)">
+                                        <input type="text" class="form-control" placeholder="Parameter name" style="margin-bottom: 10px;" name="parameters[]" value="@app.capacityParameters.headOption.map(_.parameter)">
                                     </div>
                                     <div class="col-lg-4">
                                         <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
@@ -98,7 +98,7 @@
                                 @app.capacityParameters.drop(1).map { param =>
                                     <div class="form-group">
                                         <div class="col-lg-8">
-                                            <input type="text" class="form-control" name="parameters[]" value="@param.parameter">
+                                            <input type="text" class="form-control" placeholder="Parameter name" style="margin-bottom: 10px;" name="parameters[]" value="@param.parameter">
                                         </div>
                                         <div class="col-lg-4">
                                             <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
@@ -107,7 +107,7 @@
                                 }
                                 <div class="form-group hide" id="capacityTemplate">
                                     <div class="col-lg-8">
-                                        <input type="text" class="form-control" name="parameters[]">
+                                        <input type="text" class="form-control" placeholder="Parameter name" style="margin-bottom: 10px;" name="parameters[]">
                                     </div>
                                     <div class="col-lg-4">
                                         <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
@@ -131,7 +131,7 @@
                             @helper.form(routes.ApplicationController.setObjectives(), 'id -> "objectivesform") {
                                 <div class="form-group">
                                     <div class="col-lg-8">
-                                        <input type="text" class="form-control" name="parameters[]" value="@app.objectiveParameters.headOption.map(_.parameter)">
+                                        <input type="text" class="form-control" placeholder="Parameter name" style="margin-bottom: 10px;" name="parameters[]" value="@app.objectiveParameters.headOption.map(_.parameter)">
                                     </div>
                                     <div class="col-lg-4">
                                         <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
@@ -140,7 +140,7 @@
                                 @app.objectiveParameters.drop(1).map { param =>
                                     <div class="form-group">
                                         <div class="col-lg-8">
-                                            <input type="text" class="form-control" name="parameters[]" value="@param.parameter">
+                                            <input type="text" class="form-control" placeholder="Parameter name" style="margin-bottom: 10px;" name="parameters[]" value="@param.parameter">
                                         </div>
                                         <div class="col-lg-4">
                                             <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
@@ -149,7 +149,7 @@
                                 }
                                 <div class="form-group hide" id="objectivesTemplate">
                                     <div class="col-lg-8">
-                                        <input type="text" class="form-control" name="parameters[]">
+                                        <input type="text" class="form-control" placeholder="Parameter name" style="margin-bottom: 10px;" name="parameters[]">
                                     </div>
                                     <div class="col-lg-4">
                                         <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
@@ -165,7 +165,7 @@
                     </div>
                 </div>
             </div>
-            <!-- /.row -->
+
             <div class="row">
                 <div class="col-lg-12">
                     <div class="panel panel-default">
