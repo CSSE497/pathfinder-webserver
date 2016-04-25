@@ -81,15 +81,18 @@
                     <div class="col-sm-6 col-md-4">
                         <div class="panel panel-default">
                             <div class="panel-heading">
-                                <h4>Create New App</h4>
+                                <h4>Register an application</h4>
                             </div>
                             <div class="panel-body">
+				<div style="margin-bottom: 11px;">
+				    For more information, checkout the <a href="https://pathfinder.readme.io/docs/registering-an-application">docs</a>.
+				</div>
                                 @helper.form(routes.ApplicationController.create) {
                                     <fieldset>
                                         <div class="form-group">
                                             <input class="form-control" placeholder="Name" name="name" type="string">
                                         </div>
-                                        <button type="submit" class="btn btn-lg btn-success btn-block">Create</button>
+                                        <button type="submit" class="btn btn-lg btn-success btn-block">Create new app</button>
                                     </fieldset>
                                 }
                             </div>
