@@ -8,8 +8,6 @@ import org.junit.runners.JUnit4;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
-import play.api.data.ObjectMapping;
-
 import static junit.framework.Assert.assertEquals;
 
 @RunWith(JUnit4.class)

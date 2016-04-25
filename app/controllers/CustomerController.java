@@ -2,10 +2,7 @@ package controllers;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 
-import java.util.List;
-
 import auth.SignedIn;
-import models.Application;
 import models.Customer;
 import play.Logger;
 import play.data.DynamicForm;
@@ -16,7 +13,6 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
 import play.mvc.With;
-import views.html.index;
 
 @With(ForceHttps.class)
 public class CustomerController extends Controller {
