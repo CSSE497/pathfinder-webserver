@@ -21,6 +21,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.websocket.ClientEndpointConfig;
+import javax.websocket.CloseReason;
 import javax.websocket.ContainerProvider;
 import javax.websocket.DeploymentException;
 import javax.websocket.Endpoint;
@@ -270,39 +271,57 @@ public class ApplicationController extends Controller {
             }
         };
         container.connectToServer(new Endpoint() {
+	    @Override
+	    public void onError(Session session, Throwable thr) {
+		Logger.error("Websocket connection error", thr);
+	    }
+
+	    @Override
+	    public void onClose(Session session, CloseReason closeReason) {
+		Logger.error("Websocket connection closed.");
+	    }
+
             @Override
             public void onOpen(Session session, EndpointConfig config) {
                 final RemoteEndpoint.Basic remote = session.getBasicRemote();
-                session.addMessageHandler((MessageHandler.Whole<String>) response -> {
-                    Logger.info("Received message from apiserver: " + response);
-                    JsonNode data = Json.parse(response);
-                    if (data.get("message").asText().equals("ConnectionId")) {
-                        String connectionId = data.get("id").asText();
-                        String authUrl = authServer +
-                            "?id_token=" + idToken +
-                            "&connection_id" + connectionId +
-                            "&application_id" + appId;
-                        WS.url(authUrl)
-                            .setContentType("application/x-www-form-urlencoded")
-                            .post(Json.newObject())
-                            .onRedeem(wsResponse -> {
-                                Logger.info("Received response from auth server: " + wsResponse.getBody());
-                                Logger.info("Sending Authenticate message now");
-                                try {
-                                    remote.sendText(authMessage());
-                                } catch (IOException e) {
-                                    Logger.warn("Failed to create default cluster");
-                                    e.printStackTrace();
-                                }
-                            });
-                    } else if (data.get("message").asText().equals("Authenticated")) {
-                        try {
-                            remote.sendText(message);
-                        } catch (IOException e) {
-                            Logger.warn("Failed to create default cluster");
-                            e.printStackTrace();
-                        }
-                    }
+                Logger.info("Websocket connection open");
+                session.addMessageHandler(new MessageHandler.Whole<String>() {
+		    @Override
+		    public void onMessage(String response) {
+			Logger.info("Received message from apiserver: " + response);
+			JsonNode data = Json.parse(response);
+			if (data.get("message").asText().equals("ConnectionId")) {
+			    String connectionId = data.get("id").asText();
+			    String authUrl = authServer +
+				"?id_token=" + idToken +
+				"&connection_id" + connectionId +
+				"&application_id" + appId;
+			    Logger.info("Posting to auth server: " + authUrl);
+			    WS.url(authUrl)
+				.setContentType("application/x-www-form-urlencoded")
+				.post(Json.newObject())
+				.onRedeem(wsResponse -> {
+				    Logger.info("Received response from auth server: " + wsResponse.getBody());
+				    Logger.info("Sending Authenticate message now");
+				    try {
+					remote.sendText(authMessage());
+				    } catch (IOException e) {
+					Logger.warn("Failed to create default cluster");
+					e.printStackTrace();
+				    }
+				});
+			} else if (data.get("message").asText().equals("Authenticated")) {
+			    try {
+				Logger.info("Sending create cluster message");
+				remote.sendText(message);
+			    } catch (IOException e) {
+				Logger.warn("Failed to create default cluster");
+				e.printStackTrace();
+			    }
+			} else {
+			    Logger.warn("Received unknown message");
+			}
+		    }
                 });
             }
         }, ClientEndpointConfig.Builder.create().configurator(configurator).build(), socketUri);
