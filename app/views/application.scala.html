@@ -240,20 +240,21 @@
                             <div class="col-sm-6">
                                 @helper.form(routes.ApplicationController.setAuthProvider(), 'id -> "authproviderform") {
                                     <h3>Select your authentication provider</h3>
-                                    <div class="radio">
-                                        <label>
-                                            <input type="radio" name="authradio" value="PATHFINDER_AUTH" onclick="changeProvider()" @{if (app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "checked"}>Pathfinder hosted auth
-                                        </label>
-                                    </div>
-                                    <div class="radio">
-                                        <label>
-                                            <input type="radio" name="authradio" id="custom_auth_url_radio" onclick="changeProvider()" value="CUSTOM_AUTH" @{if (!app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "checked"}>Custom authentication
-                                            <input type="text" name="custom_auth_url" class="form-control" id="custom_auth_url" placeholder="https://your-url.com/auth" @{if (app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "disabled"} @{if (!app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "value=" + app.authUrl}>
-                                        </label>
-                                    </div>
-                                    <button type="submit" class="btn btn-default">Save authentication settings</button>
-                                }
-                            </div>
+			      <div class="input-group" style="margin-bottom: 10px;">
+				<span class="input-group-addon">
+				  <input id="pathfinder_auth_radio" type="radio" value="PATHFINDER_AUTH" onclick="changeToHosted()" aria-label="..." @{if (app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "checked"}>
+				</span>
+				<input type="text" value="https://auth.thepathfinder.xyz/connection" class="form-control" aria-label="..." readonly>
+			      </div>
+			      <div class="input-group" style="margin-bottom: 10px;">
+				<span class="input-group-addon">
+				  <input id="custom_auth_url_radio" type="radio" aria-label="..." onclick="changeToCustom()" @{if (!app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "checked"}>
+				</span>
+				<input id="custom_auth_url" type="text" class="form-control" placeholder="https://your-url.com/auth" aria-label="..." @{if (app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "disabled"} @{if (!app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "value=" + app.authUrl}>
+			      </div>
+                              <button id="saveauthbutton" onclick="saveAuthSettings()" type="button" class="btn btn-default">Save authentication settings</button>
+                            }
+			    </div>
                             <div class="col-sm-6">
                                 <ul id="auth_whitelist" class="list-group">
                                     <li class="list-group-item disabled">Pathfinder hosted auth whitelist</li>

@@ -173,8 +173,8 @@ public class ApplicationController extends Controller {
     @Security.Authenticated(SignedIn.class)
     public Result setAuthProvider() {
         DynamicForm form = form().bindFromRequest();
-        String authUrl = form.get("authradio").equals("CUSTOM_AUTH") ? form.get("custom_auth_url") : Application.PATHFINDER_HOSTED_AUTH_URL;
-        SqlUpdate update = Ebean.createSqlUpdate("update application set authUrl = :id1 where id = :id2;");
+        String authUrl = form.get("auth_url");
+        SqlUpdate update = Ebean.createSqlUpdate("update application set auth_url = :id1 where id = :id2;");
         update.setParameter("id1", authUrl);
         update.setParameter("id2", session("app"));
         update.execute();
