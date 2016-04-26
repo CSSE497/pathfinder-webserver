@@ -4,6 +4,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Model;
 import com.avaje.ebean.SqlUpdate;
 import com.avaje.ebean.annotation.Transactional;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -20,6 +21,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.websocket.ClientEndpointConfig;
+import javax.websocket.CloseReason;
 import javax.websocket.ContainerProvider;
 import javax.websocket.DeploymentException;
 import javax.websocket.Endpoint;
@@ -41,6 +43,7 @@ import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
+import play.libs.ws.WS;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
@@ -54,6 +57,7 @@ import static play.data.Form.form;
 public class ApplicationController extends Controller {
     private static final Config CONFIG = ConfigFactory.load();
     private static final URI socketUri;
+    private static final String authServer = CONFIG.getString("pathfinder.authserver");
     static {
         try {
             socketUri = new URI(CONFIG.getString("pathfinder.server.socket"));
@@ -100,7 +104,7 @@ public class ApplicationController extends Controller {
         permission.permissions = new HashMap<>();
         permission.save();
         try {
-            createDefaultCluster(app.id);
+            createDefaultCluster(app.id, session("id_token"));
         } catch (Exception e) {
             Logger.error("Failed to create default cluster", e);
             e.printStackTrace();
@@ -173,8 +177,8 @@ public class ApplicationController extends Controller {
     @Security.Authenticated(SignedIn.class)
     public Result setAuthProvider() {
         DynamicForm form = form().bindFromRequest();
-        String authUrl = form.get("authradio").equals("CUSTOM_AUTH") ? form.get("custom_auth_url") : Application.PATHFINDER_HOSTED_AUTH_URL;
-        SqlUpdate update = Ebean.createSqlUpdate("update application set authUrl = :id1 where id = :id2;");
+        String authUrl = form.get("auth_url");
+        SqlUpdate update = Ebean.createSqlUpdate("update application set auth_url = :id1 where id = :id2;");
         update.setParameter("id1", authUrl);
         update.setParameter("id2", session("app"));
         update.execute();
@@ -246,19 +250,19 @@ public class ApplicationController extends Controller {
         update.setParameter("id2", session("app"));
         update.execute();
         Logger.info(String.format("Set objective function for %s: %s", session("app"), function.function));
-        forceRouteUpdate(session("app"));
+        forceRouteUpdate(session("app"), session("id_token"));
         return redirect(routes.ApplicationController.application());
     }
 
-    private void forceRouteUpdate(String appId) throws IOException, DeploymentException {
-        sendMessage(appId, recalculateMessage("/root"));
+    private void forceRouteUpdate(String appId, String idToken) throws IOException, DeploymentException {
+        sendMessage(appId, idToken, recalculateMessage("/root"));
     }
 
-    private void createDefaultCluster(String appId) throws IOException, DeploymentException {
-        sendMessage(appId, createDefaultClusterMessage(appId));
+    private void createDefaultCluster(String appId, String idToken) throws IOException, DeploymentException {
+        sendMessage(appId, idToken, createDefaultClusterMessage(appId));
     }
 
-    private static void sendMessage(String appId, String message) throws IOException, DeploymentException {
+    private static void sendMessage(String appId, String idToken, String message) throws IOException, DeploymentException {
         Logger.info(String.format("Attempting to send %s to %s", message, socketUri));
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         ClientEndpointConfig.Configurator configurator = new ClientEndpointConfig.Configurator() {
@@ -267,19 +271,67 @@ public class ApplicationController extends Controller {
             }
         };
         container.connectToServer(new Endpoint() {
+	    @Override
+	    public void onError(Session session, Throwable thr) {
+		Logger.error("Websocket connection error", thr);
+	    }
+
+	    @Override
+	    public void onClose(Session session, CloseReason closeReason) {
+		Logger.error("Websocket connection closed.");
+	    }
+
             @Override
             public void onOpen(Session session, EndpointConfig config) {
                 final RemoteEndpoint.Basic remote = session.getBasicRemote();
-                session.addMessageHandler(
-                    (MessageHandler.Whole<String>) message1 -> Logger.info("Received message from apiserver: " + message1));
-                try {
-                    remote.sendText(message);
-                } catch (IOException e) {
-                    Logger.warn("Failed to create default cluster");
-                    e.printStackTrace();
-                }
+                Logger.info("Websocket connection open");
+                session.addMessageHandler(new MessageHandler.Whole<String>() {
+		    @Override
+		    public void onMessage(String response) {
+			Logger.info("Received message from apiserver: " + response);
+			JsonNode data = Json.parse(response);
+			if (data.get("message").asText().equals("ConnectionId")) {
+			    String connectionId = data.get("id").asText();
+			    String authUrl = authServer +
+				"?id_token=" + idToken +
+				"&connection_id=" + connectionId +
+				"&application_id=" + appId;
+			    Logger.info("Posting to auth server: " + authUrl);
+			    WS.url(authUrl)
+				.setContentType("application/x-www-form-urlencoded")
+				.post(Json.newObject())
+				.onRedeem(wsResponse -> {
+				    Logger.info("Received response from auth server: " + wsResponse.getBody());
+				    Logger.info("Sending Authenticate message now");
+				    try {
+					remote.sendText(authMessage());
+				    } catch (IOException e) {
+					Logger.warn("Failed to create default cluster");
+					e.printStackTrace();
+				    }
+				});
+			} else if (data.get("message").asText().equals("Authenticated")) {
+			    try {
+				Logger.info("Sending create cluster message");
+				remote.sendText(message);
+			    } catch (IOException e) {
+				Logger.warn("Failed to create default cluster");
+				e.printStackTrace();
+			    }
+			} else {
+			    Logger.warn("Received unknown message");
+			}
+		    }
+                });
             }
         }, ClientEndpointConfig.Builder.create().configurator(configurator).build(), socketUri);
+    }
+
+    private static String authMessage() {
+        ObjectNode message = Json.newObject();
+        message.put("message", "Authenticate");
+        message.put("dashboard", true);
+        return message.toString();
     }
 
     private static String createDefaultClusterMessage(String appId) {

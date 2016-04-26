@@ -35,8 +35,8 @@
     </script>
 </head>
 
-<body class="theme-line body-box">
-    <div id="wrapper">
+<body class="theme-line body-box fill">
+    <div id="wrapper" class="fill">
         <header id="header" class="header">
             <div class="container">
                 <h1 class="navbar-brand">
@@ -45,7 +45,7 @@
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
                         <li>
-                            <a href="https://pathfinder.readme.io/docs" title="Documentation">Documentation</a>
+                            <a href="https://pathfinder.readme.io" title="Documentation">Documentation</a>
                         </li>
                         <li>
                             <a href="https://pathfinder.readme.io/blog" title="Blog">Blog</a>
@@ -59,7 +59,7 @@
                     </ul>
                     <ul class="nav navbar-nav pull-right">
                         <li class="active">
-                            <a href="/dashboard" title="Dashboard">Dashboard</a>
+                            <a href="/applications" title="Applications">Applications</a>
                         </li>
                         <li>
                             <a href="#" onclick='signOut();' title="Sign Out">Sign Out</a>
@@ -72,24 +72,34 @@
             </div>
         </header>
 
-        <div class="container body-container">
-            <div class="main-content">
+        <div class="container body-container fille">
+            <div class="main-content fill">
             <div class="row docs-content">
                 <div class="col-lg-12 docs-header">
-                    <h1 class="page-header">@app.name</h1>
+		    <div class="page-header">
+			<h1 style="display: inline-block;">@app.name</h1>
+			<ul style="float:right;" class="nav nav-pills">
+			    <li role="presentation" class="active"><a href="#" onclick="switchTabs(this, 'clusterpanel')">Cluster Explorer</a></li>
+			    <li role="presentation"><a href="#" onclick="switchTabs(this, 'routingpanel')">Routing Configuration</a></li>
+			    <li role="presentation"><a href="#" onclick="switchTabs(this, 'authpanel')">Authentication Settings</a></li>
+			</ul>
+		    </div>
                 </div>
             </div>
-            <div class="row">
+            <div class="row routingpanel">
                 <div class="col-lg-6">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             Routing Capacity Parameters
                         </div>
                         <div class="panel-body">
+			    <div>
+				Capacities are enforced by the Pathfinder routing engine using transport and commodity metadata. For more information, see the <a href="https://pathfinder.readme.io/docs/capacities-and-parameters">docs</a>.
+			    </div>
                             @helper.form(routes.ApplicationController.setCapacities(), 'id -> "capacitiesform") {
                                 <div class="form-group">
                                     <div class="col-lg-8">
-                                        <input type="text" class="form-control" name="parameters[]" value="@app.capacityParameters.headOption.map(_.parameter)">
+                                        <input type="text" class="form-control" placeholder="Parameter name" style="margin-bottom: 10px;" name="parameters[]" value="@app.capacityParameters.headOption.map(_.parameter)">
                                     </div>
                                     <div class="col-lg-4">
                                         <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
@@ -98,7 +108,7 @@
                                 @app.capacityParameters.drop(1).map { param =>
                                     <div class="form-group">
                                         <div class="col-lg-8">
-                                            <input type="text" class="form-control" name="parameters[]" value="@param.parameter">
+                                            <input type="text" class="form-control" placeholder="Parameter name" style="margin-bottom: 10px;" name="parameters[]" value="@param.parameter">
                                         </div>
                                         <div class="col-lg-4">
                                             <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
@@ -107,7 +117,7 @@
                                 }
                                 <div class="form-group hide" id="capacityTemplate">
                                     <div class="col-lg-8">
-                                        <input type="text" class="form-control" name="parameters[]">
+                                        <input type="text" class="form-control" placeholder="Parameter name" style="margin-bottom: 10px;" name="parameters[]">
                                     </div>
                                     <div class="col-lg-4">
                                         <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
@@ -128,10 +138,13 @@
                             Routing Objective Parameters
                         </div>
                         <div class="panel-body">
+			    <div>
+				Objective parameters are exposed as variables in the <a href="https://pathfinder.readme.io/docs/objective-function-dsl">Objective Function DSL</a>. For more information, see the <a href="https://pathfinder.readme.io/docs/capacities-and-parameters">docs</a>.
+			    </div>
                             @helper.form(routes.ApplicationController.setObjectives(), 'id -> "objectivesform") {
                                 <div class="form-group">
                                     <div class="col-lg-8">
-                                        <input type="text" class="form-control" name="parameters[]" value="@app.objectiveParameters.headOption.map(_.parameter)">
+                                        <input type="text" class="form-control" placeholder="Parameter name" style="margin-bottom: 10px;" name="parameters[]" value="@app.objectiveParameters.headOption.map(_.parameter)">
                                     </div>
                                     <div class="col-lg-4">
                                         <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
@@ -140,7 +153,7 @@
                                 @app.objectiveParameters.drop(1).map { param =>
                                     <div class="form-group">
                                         <div class="col-lg-8">
-                                            <input type="text" class="form-control" name="parameters[]" value="@param.parameter">
+                                            <input type="text" class="form-control" placeholder="Parameter name" style="margin-bottom: 10px;" name="parameters[]" value="@param.parameter">
                                         </div>
                                         <div class="col-lg-4">
                                             <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
@@ -149,7 +162,7 @@
                                 }
                                 <div class="form-group hide" id="objectivesTemplate">
                                     <div class="col-lg-8">
-                                        <input type="text" class="form-control" name="parameters[]">
+                                        <input type="text" class="form-control" placeholder="Parameter name" style="margin-bottom: 10px;" name="parameters[]">
                                     </div>
                                     <div class="col-lg-4">
                                         <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
@@ -165,8 +178,8 @@
                     </div>
                 </div>
             </div>
-            <!-- /.row -->
-            <div class="row">
+
+            <div class="row routingpanel">
                 <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
@@ -174,7 +187,10 @@
                         </div>
                         <div class="panel-body">
                             @helper.form(routes.ApplicationController.setObjectiveFunction) {
-                                <div class="col-sm-3">
+                                <div class="col-sm-4">
+				    <div>
+					The objective function is used to determine the best routes for your application. For more information on custom objective functions, see the <a href="https://pathfinder.readme.io/docs/objective-function-dsl">docs</a>.
+				    </div>
                                     <div class="radio">
                                         <label>
                                             <input type="radio" name="functionsradios" value="MIN_DIST" @{if (app.objectiveFunction.id.equals(ObjectiveFunction.MIN_DIST)) "checked"}>Minimize Distance
@@ -192,7 +208,7 @@
                                     </div>
                                     <button type="submit" class="btn btn-default">Save Objective Function</button>
                                 </div>
-                                <div class="col-sm-9">
+                                <div class="col-sm-8">
                                     <div class="form-group">
                                         <textarea id="objectivefunctioncode" name="dsl" class="form-control codeform" rows="12" @{if (app.objectiveFunction.id.equals(ObjectiveFunction.MIN_DIST) || app.objectiveFunction.id.equals(ObjectiveFunction.MIN_TIME)) "disabled"}>@app.objectiveFunction.dsl</textarea>
                                     </div>
@@ -203,17 +219,20 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row clusterpanel">
                 <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             Clusters
                         </div>
                         <div class="panel-body">
+			    <div style="margin-bottom: 10px;">
+				Pathfinder buckets all transports and commodities into clusters which must be created ahead of time using this dashboard. The top level cluster is always called "/root". For more information, see the <a href="https://pathfinder.readme.io/docs/commodities-clusters-and-transports">docs</a>.
+			    </div>
                             <div class="col-sm-3">
                                 <div id="clustertree"></div>
-                                <input id="subclusterinput" type="text" class="form-control">
-                                <button id="createsubcluster" type="submit" class="btn btn-default" style="width: 100%;">Add subcluster to selected</button>
+                                <input id="subclusterinput" type="text" placeholder="Subcluster name" style="margin-bottom: 10px;" class="form-control">
+                                <button id="createsubcluster" type="submit" class="btn btn-default" style="width: 100%; margin-bottom: 10px;">Add subcluster to selected</button>
                                 <button id="forcerefresh" type="submit" class="btn btn-default" style="width: 100%;">Request recalculation</button>
                             </div>
                             <div class="col-sm-9">
@@ -225,29 +244,38 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row authpanel">
                 <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">Authentication</div>
                         <div class="panel-body">
                             <div class="col-sm-6">
+				<div style="margin-bottom: 10px;">
+				    To integrate your app with Pathfinder, you will need to set up authentication to use the <a href="https://pathfinder.readme.io/docs/platform-support">SDKs</a>. You can either use your own backend to authenticate your users or you can use Pathfinder hosted authentication.
+				</div>
+				<div style="margin-bottom: 10px;">
+				    For more information, see the <a href="https://pathfinder.readme.io/docs/authentication">docs</a>.
+				</div>
                                 @helper.form(routes.ApplicationController.setAuthProvider(), 'id -> "authproviderform") {
-                                    <h3>Select your authentication provider</h3>
-                                    <div class="radio">
-                                        <label>
-                                            <input type="radio" name="authradio" value="PATHFINDER_AUTH" onclick="changeProvider()" @{if (app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "checked"}>Pathfinder hosted auth
-                                        </label>
-                                    </div>
-                                    <div class="radio">
-                                        <label>
-                                            <input type="radio" name="authradio" id="custom_auth_url_radio" onclick="changeProvider()" value="CUSTOM_AUTH" @{if (!app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "checked"}>Custom authentication
-                                            <input type="text" name="custom_auth_url" class="form-control" id="custom_auth_url" placeholder="https://your-url.com/auth" @{if (app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "disabled"} @{if (!app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "value=" + app.authUrl}>
-                                        </label>
-                                    </div>
-                                    <button type="submit" class="btn btn-default">Save authentication settings</button>
-                                }
-                            </div>
+			      <div class="input-group" style="margin-bottom: 10px;">
+				<span class="input-group-addon">
+				  <input id="pathfinder_auth_radio" type="radio" value="PATHFINDER_AUTH" onclick="changeToHosted()" aria-label="..." @{if (app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "checked"}>
+				</span>
+				<input type="text" value="https://auth.thepathfinder.xyz/connection" class="form-control" aria-label="..." readonly>
+			      </div>
+			      <div class="input-group" style="margin-bottom: 10px;">
+				<span class="input-group-addon">
+				  <input id="custom_auth_url_radio" type="radio" aria-label="..." onclick="changeToCustom()" @{if (!app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "checked"}>
+				</span>
+				<input id="custom_auth_url" type="text" class="form-control" placeholder="https://your-url.com/auth" aria-label="..." @{if (app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "disabled"} @{if (!app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "value=" + app.authUrl}>
+			      </div>
+                              <button id="saveauthbutton" onclick="saveAuthSettings()" type="button" class="btn btn-default">Save authentication settings</button>
+                            }
+			    </div>
                             <div class="col-sm-6">
+				<div style="margin-bottom: 10px;">
+				    The auth whitelist will be used if you select Pathfinder hosted auth as your authentication provider.
+				</div>
                                 <ul id="auth_whitelist" class="list-group">
                                     <li class="list-group-item disabled">Pathfinder hosted auth whitelist</li>
                                     @whitelist.map { email =>
@@ -311,7 +339,19 @@
             $("#objectivefunctioncode").on('input', function(e) {
                 custom = e.target.value;
             });
+
+	    $("div.routingpanel").hide()
+	    $("div.authpanel").hide()
         });
+
+	function switchTabs(link, panel) {
+	    $("li[role]").removeClass("active");
+	    $(link.parentNode).addClass("active");
+	    $("div.clusterpanel").hide()
+	    $("div.routingpanel").hide()
+	    $("div.authpanel").hide()
+	    $("div." + panel).show()
+	}
     </script>
 
     <script src="/js/application.js"></script>

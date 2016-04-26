@@ -282,6 +282,7 @@ $(function() {
                         updateMap(currentSubclusterId());
                     }
                 });
+                $("ul.list-group > li")[0].click();
             });
         }
 
@@ -321,8 +322,29 @@ $(function() {
     });
 });
 
-window.changeProvider = function() {
-    document.getElementById("custom_auth_url").disabled = !document.getElementById("custom_auth_url_radio").checked;
+function changeToCustom() {
+    document.getElementById("custom_auth_url").disabled = false;
+    $("#pathfinder_auth_radio").prop("checked", false);
+    $("#custom_auth_url_radio").prop("checked", true);
+}
+
+function changeToHosted() {
+    document.getElementById("custom_auth_url").disabled = true;
+    $("#pathfinder_auth_radio").prop("checked", true);
+    $("#custom_auth_url_radio").prop("checked", false);
+}
+
+function saveAuthSettings() {
+    var authData = new FormData();
+    if ($("#pathfinder_auth_radio").is(":checked")) {
+      authData.append("auth_url", "https://auth.thepathfinder.xyz/connection");
+    } else {
+      authData.append("auth_url", $("#custom_auth_url").val());
+    }
+    var saveAuthSettingsRequest = new XMLHttpRequest();
+    saveAuthSettingsRequest.open("POST", "/setauthprovider");
+    saveAuthSettingsRequest.send(authData);
+    $("h3").click();
 }
 
 function removeFromWhitelist(listitem) {

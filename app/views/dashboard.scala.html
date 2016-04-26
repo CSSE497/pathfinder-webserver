@@ -43,7 +43,7 @@
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
                         <li>
-                            <a href="https://pathfinder.readme.io/docs" title="Documentation">Documentation</a>
+                            <a href="https://pathfinder.readme.io" title="Documentation">Documentation</a>
                         </li>
                         <li>
                             <a href="https://pathfinder.readme.io/blog" title="Blog">Blog</a>
@@ -57,7 +57,7 @@
                     </ul>
                     <ul class="nav navbar-nav pull-right">
                         <li class="active">
-                            <a href="/dashboard" title="Dashboard">Dashboard</a>
+                            <a href="/applications" title="Applications">Applications</a>
                         </li>
                         <li>
                             <a href="#" onclick='signOut();' title="Sign Out">Sign Out</a>
@@ -74,29 +74,32 @@
             <div class="main-content fill">
                 <div class="row docs-content">
                     <div class="col-lg-12 docs-header">
-                        <h1 class="page-header">Dashboard</h1>
+                        <h1 class="page-header">Your Applications</h1>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-4">
+                    <div class="col-sm-6 col-md-4">
                         <div class="panel panel-default">
                             <div class="panel-heading">
-                                <h4>Create New App</h4>
+                                <h4>Register an application</h4>
                             </div>
                             <div class="panel-body">
+				<div style="margin-bottom: 11px;">
+				    For more information, checkout the <a href="https://pathfinder.readme.io/docs/registering-an-application">docs</a>.
+				</div>
                                 @helper.form(routes.ApplicationController.create) {
                                     <fieldset>
                                         <div class="form-group">
                                             <input class="form-control" placeholder="Name" name="name" type="string">
                                         </div>
-                                        <button type="submit" class="btn btn-lg btn-success btn-block">Create</button>
+                                        <button type="submit" class="btn btn-lg btn-success btn-block">Create new app</button>
                                     </fieldset>
                                 }
                             </div>
                         </div>
                     </div>
-                    @apps.map { app =>
-                        <div class="col-lg-4">
+                    @apps.sortWith(_.name < _.name).map { app =>
+                        <div class="col-sm-6 col-md-4">
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                   <h4>@app.name
