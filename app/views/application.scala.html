@@ -93,6 +93,9 @@
                             Routing Capacity Parameters
                         </div>
                         <div class="panel-body">
+			    <div>
+				Capacities are enforced by the Pathfinder routing engine using transport and commodity metadata. For more information, see the <a href="https://pathfinder.readme.io/docs/capacities-and-parameters">docs</a>.
+			    </div>
                             @helper.form(routes.ApplicationController.setCapacities(), 'id -> "capacitiesform") {
                                 <div class="form-group">
                                     <div class="col-lg-8">
@@ -135,6 +138,9 @@
                             Routing Objective Parameters
                         </div>
                         <div class="panel-body">
+			    <div>
+				Objective parameters are exposed as variables in the <a href="https://pathfinder.readme.io/docs/objective-function-dsl">Objective Function DSL</a>. For more information, see the <a href="https://pathfinder.readme.io/docs/capacities-and-parameters">docs</a>.
+			    </div>
                             @helper.form(routes.ApplicationController.setObjectives(), 'id -> "objectivesform") {
                                 <div class="form-group">
                                     <div class="col-lg-8">
@@ -181,7 +187,10 @@
                         </div>
                         <div class="panel-body">
                             @helper.form(routes.ApplicationController.setObjectiveFunction) {
-                                <div class="col-sm-3">
+                                <div class="col-sm-4">
+				    <div>
+					The objective function is used to determine the best routes for your application. For more information on custom objective functions, see the <a href="https://pathfinder.readme.io/docs/objective-function-dsl">docs</a>.
+				    </div>
                                     <div class="radio">
                                         <label>
                                             <input type="radio" name="functionsradios" value="MIN_DIST" @{if (app.objectiveFunction.id.equals(ObjectiveFunction.MIN_DIST)) "checked"}>Minimize Distance
@@ -199,7 +208,7 @@
                                     </div>
                                     <button type="submit" class="btn btn-default">Save Objective Function</button>
                                 </div>
-                                <div class="col-sm-9">
+                                <div class="col-sm-8">
                                     <div class="form-group">
                                         <textarea id="objectivefunctioncode" name="dsl" class="form-control codeform" rows="12" @{if (app.objectiveFunction.id.equals(ObjectiveFunction.MIN_DIST) || app.objectiveFunction.id.equals(ObjectiveFunction.MIN_TIME)) "disabled"}>@app.objectiveFunction.dsl</textarea>
                                     </div>
@@ -217,6 +226,9 @@
                             Clusters
                         </div>
                         <div class="panel-body">
+			    <div style="margin-bottom: 10px;">
+				Pathfinder buckets all transports and commodities into clusters which must be created ahead of time using this dashboard. The top level cluster is always called "/root". For more information, see the <a href="https://pathfinder.readme.io/docs/commodities-clusters-and-transports">docs</a>.
+			    </div>
                             <div class="col-sm-3">
                                 <div id="clustertree"></div>
                                 <input id="subclusterinput" type="text" placeholder="Subcluster name" style="margin-bottom: 10px;" class="form-control">
@@ -238,8 +250,13 @@
                         <div class="panel-heading">Authentication</div>
                         <div class="panel-body">
                             <div class="col-sm-6">
+				<div style="margin-bottom: 10px;">
+				    To integrate your app with Pathfinder, you will need to set up authentication to use the <a href="https://pathfinder.readme.io/docs/platform-support">SDKs</a>. You can either use your own backend to authenticate your users or you can use Pathfinder hosted authentication.
+				</div>
+				<div style="margin-bottom: 10px;">
+				    For more information, see the <a href="https://pathfinder.readme.io/docs/authentication">docs</a>.
+				</div>
                                 @helper.form(routes.ApplicationController.setAuthProvider(), 'id -> "authproviderform") {
-                                    <h3>Select your authentication provider</h3>
 			      <div class="input-group" style="margin-bottom: 10px;">
 				<span class="input-group-addon">
 				  <input id="pathfinder_auth_radio" type="radio" value="PATHFINDER_AUTH" onclick="changeToHosted()" aria-label="..." @{if (app.authUrl.equals(Application.PATHFINDER_HOSTED_AUTH_URL)) "checked"}>
@@ -256,6 +273,9 @@
                             }
 			    </div>
                             <div class="col-sm-6">
+				<div style="margin-bottom: 10px;">
+				    The auth whitelist will be used if you select Pathfinder hosted auth as your authentication provider.
+				</div>
                                 <ul id="auth_whitelist" class="list-group">
                                     <li class="list-group-item disabled">Pathfinder hosted auth whitelist</li>
                                     @whitelist.map { email =>
