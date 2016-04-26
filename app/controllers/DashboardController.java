@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.bouncycastle.util.io.pem.PemObject;
@@ -39,6 +41,7 @@ public class DashboardController extends Controller {
     public Result dashboard() {
         Logger.info(String.format("Serving applications for %s", session("email")));
         List<Application> apps = Customer.find.byId(session("email")).applications;
+        Collections.sort(apps, (o1, o2) -> o1.authUrl.compareTo(o2.authUrl));
         return ok(views.html.dashboard.render(apps, Form.form()));
     }
 
