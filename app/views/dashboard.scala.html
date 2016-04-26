@@ -98,7 +98,7 @@
                             </div>
                         </div>
                     </div>
-                    @apps.map { app =>
+                    @apps.sortWith(_.name < _.name).map { app =>
                         <div class="col-sm-6 col-md-4">
                             <div class="panel panel-default">
                                 <div class="panel-heading">
